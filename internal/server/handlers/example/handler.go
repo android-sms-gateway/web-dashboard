@@ -1,7 +1,7 @@
 package example
 
 import (
-	"github.com/capcom6/go-project-template/internal/example"
+	"github.com/android-sms-gateway/web-dashboard/internal/example"
 	"github.com/go-core-fx/fiberfx/handler"
 	"github.com/go-core-fx/fiberfx/validation"
 	"github.com/go-playground/validator/v10"
