@@ -1,11 +1,9 @@
 package config
 
 import (
-	"github.com/capcom6/go-project-template/internal/example"
+	"github.com/android-sms-gateway/web-dashboard/internal/example"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/fiberfx/openapi"
-	"github.com/go-core-fx/sqlfx"
-	"github.com/go-core-fx/telegofx"
 	"go.uber.org/fx"
 )
 
@@ -26,20 +24,6 @@ func Module() fx.Option {
 					Enabled:    cfg.HTTP.OpenAPI.Enabled,
 					PublicHost: cfg.HTTP.OpenAPI.PublicHost,
 					PublicPath: cfg.HTTP.OpenAPI.PublicPath,
-				}
-			},
-			func(cfg Config) telegofx.Config {
-				return telegofx.Config{
-					Token: cfg.Telegram.Token,
-				}
-			},
-			func(cfg Config) sqlfx.Config {
-				return sqlfx.Config{
-					URL:             cfg.Database.URL,
-					ConnMaxIdleTime: cfg.Database.ConnMaxIdleTime,
-					ConnMaxLifetime: cfg.Database.ConnMaxLifetime,
-					MaxOpenConns:    cfg.Database.MaxOpenConns,
-					MaxIdleConns:    cfg.Database.MaxIdleConns,
 				}
 			},
 		),
