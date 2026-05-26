@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/android-sms-gateway/web-dashboard/internal/config"
-	"github.com/android-sms-gateway/web-dashboard/internal/example"
+	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/healthfx"
@@ -41,17 +41,18 @@ func Run(version healthfx.Version) {
 		server.Module(),
 		//
 		// BUSINESS MODULES
+		gateway.Module(),
+
 		fx.Supply(version),
-		example.Module(),
-		//
-		fx.Invoke(func(lc fx.Lifecycle, logger *zap.Logger) {
+
+		fx.Invoke(func(lc fx.Lifecycle, logger *zap.Logger, cfg gateway.Config) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error {
-					logger.Info("app started")
+					logger.Info("web-dashboard started", zap.String("gateway_url", cfg.URL))
 					return nil
 				},
 				OnStop: func(_ context.Context) error {
-					logger.Info("app stopped")
+					logger.Info("web-dashboard stopped")
 					return nil
 				},
 			})
