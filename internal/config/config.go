@@ -21,14 +21,14 @@ type openAPIConfig struct {
 	PublicPath string `koanf:"public_path"`
 }
 
-type exampleConfig struct {
-	Example string `koanf:"example"`
+type gatewayConfig struct {
+	URL        string `koanf:"url"`
+	WebhookURL string `koanf:"webhook_url"`
 }
 
 type Config struct {
-	HTTP http `koanf:"http"`
-
-	Example exampleConfig `koanf:"example"`
+	HTTP    http          `koanf:"http"`
+	Gateway gatewayConfig `koanf:"gateway"`
 }
 
 func Default() Config {
@@ -43,9 +43,9 @@ func Default() Config {
 				PublicPath: "",
 			},
 		},
-
-		Example: exampleConfig{
-			Example: "example",
+		Gateway: gatewayConfig{
+			URL:        "https://api.sms-gate.app/3rdparty/v1",
+			WebhookURL: "http://localhost:3000/api/webhooks/callback",
 		},
 	}
 }

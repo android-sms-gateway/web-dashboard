@@ -23,33 +23,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/example": {
-            "get": {
-                "description": "Returns a greeting message and example value",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "Get example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/example.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/fiberfx.ErrorResponse"
-                        }
-                    }
-                }
-            },
+        "/auth/login": {
             "post": {
-                "description": "Creates an example using the provided request payload",
+                "description": "Authenticate with the SMSGate using basic credentials. Returns a session cookie.",
                 "consumes": [
                     "application/json"
                 ],
@@ -57,17 +33,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "example"
+                    "auth"
                 ],
-                "summary": "Create example",
+                "summary": "Login",
                 "parameters": [
                     {
-                        "description": "Request payload",
-                        "name": "request",
+                        "description": "Login credentials",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/example.Request"
+                            "$ref": "#/definitions/handlers.loginRequest"
                         }
                     }
                 ],
@@ -75,7 +51,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/example.Response"
+                            "$ref": "#/definitions/handlers.loginResponse"
                         }
                     },
                     "400": {
@@ -84,8 +60,77 @@ const docTemplate = `{
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "description": "Invalidate the current session and clear the session cookie.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "description": "Returns the login of the currently authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.meResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "description": "Returns aggregated statistics for the dashboard (devices, messages).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Dashboard stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.statsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -95,28 +140,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "example.Request": {
-            "type": "object",
-            "required": [
-                "value"
-            ],
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "example.Response": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
         "fiberfx.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -126,6 +149,57 @@ const docTemplate = `{
                 "details": {},
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.loginRequest": {
+            "type": "object",
+            "required": [
+                "login",
+                "password"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.loginResponse": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.meResponse": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.statsResponse": {
+            "type": "object",
+            "properties": {
+                "devicesOnline": {
+                    "type": "integer"
+                },
+                "devicesTotal": {
+                    "type": "integer"
+                },
+                "messagesFailed": {
+                    "type": "integer"
+                },
+                "messagesPending": {
+                    "type": "integer"
+                },
+                "messagesSent": {
+                    "type": "integer"
                 }
             }
         }
@@ -138,8 +212,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Project API",
-	Description:      "Project API documentation",
+	Title:            "SMSGate Web Dashboard API",
+	Description:      "Web dashboard for the SMSGate. Provides a UI and API for managing devices, messages, webhooks, and settings.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
