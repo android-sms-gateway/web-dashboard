@@ -27,7 +27,7 @@ coverage: test ## Generate coverage
 benchmark: ## Run benchmarks
 	go test -run=^$$ -bench=. -benchmem ./... | tee benchmark.txt
 
-air: ## Run development server
+air: gen ## Run development server
 	@command -v air >/dev/null 2>&1 || { \
       echo "Please install air: go install github.com/air-verse/air@latest"; \
       exit 1; \
@@ -44,11 +44,11 @@ gen: ## Generate code
 release: ## Create release
 	goreleaser release --snapshot --clean
 
-clean: ## Clean build artifacts
+clean: clean-web ## Clean build artifacts
 	rm -f coverage.* benchmark.txt
 	rm -rf dist bin
 
-build: ## Build the project
+build: gen  ## Build the project
 	@echo "Building the project..."
 	@mkdir -p bin
 	go build -o bin/$(BINARY_NAME) .

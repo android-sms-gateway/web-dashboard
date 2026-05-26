@@ -1,8 +1,8 @@
-// Golang project template
+// SMSGate Web Dashboard
 //
-//	@title			Project API
+//	@title			SMSGate Web Dashboard API
 //	@version		1.0.0
-//	@description	Project API documentation
+//	@description	Web dashboard for the SMSGate. Provides a UI and API for managing devices, messages, webhooks, and settings.
 //
 //	@contact.name	API Support
 //	@contact.url	https://github.com/capcom6
@@ -25,6 +25,7 @@ import (
 )
 
 //go:generate swag init --parseDependency --outputTypes go -g ./main.go -o ./internal/server/docs
+//go:generate sh -c "cd web && npm ci && npm run build"
 
 //nolint:gochecknoglobals // build metadata
 var (
