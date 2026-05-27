@@ -13,6 +13,8 @@ func Module() fx.Option {
 		fx.Provide(
 			fx.Annotate(NewAuthHandler, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(NewDashboardHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewMessagesHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewDevicesHandler, fx.ResultTags(`group:"handlers"`)),
 		),
 	)
 }
