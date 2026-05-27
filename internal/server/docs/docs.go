@@ -112,6 +112,224 @@ const docTemplate = `{
                 }
             }
         },
+        "/devices": {
+            "get": {
+                "description": "Returns all registered devices.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "List devices",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.deviceListItem"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{id}": {
+            "delete": {
+                "description": "Removes a device by its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Delete device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages": {
+            "get": {
+                "description": "Returns paginated list of messages with optional filters.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "List messages",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Max results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by state",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by device ID",
+                        "name": "deviceId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.listMessagesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Sends a new text message to one or more recipients.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Send message",
+                "parameters": [
+                    {
+                        "description": "Message to send",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.sendMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.MessageState"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}": {
+            "get": {
+                "description": "Returns full message state by message ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.MessageState"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stats": {
             "get": {
                 "description": "Returns aggregated statistics for the dashboard (devices, messages).",
@@ -152,6 +370,40 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.deviceListItem": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isOnline": {
+                    "type": "boolean"
+                },
+                "lastSeen": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.listMessagesResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.messageListItem"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "handlers.loginRequest": {
             "type": "object",
             "required": [
@@ -183,6 +435,78 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.messageListItem": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.recipientItem"
+                    }
+                },
+                "state": {
+                    "$ref": "#/definitions/smsgateway.ProcessingState"
+                },
+                "textPreview": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.recipientItem": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/smsgateway.ProcessingState"
+                }
+            }
+        },
+        "handlers.sendMessageRequest": {
+            "type": "object",
+            "required": [
+                "phoneNumbers",
+                "text"
+            ],
+            "properties": {
+                "phoneNumbers": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "priority": {
+                    "type": "integer",
+                    "maximum": 127,
+                    "minimum": -128
+                },
+                "simNumber": {
+                    "type": "integer",
+                    "maximum": 3,
+                    "minimum": 1
+                },
+                "text": {
+                    "type": "string",
+                    "maxLength": 65535,
+                    "minLength": 1
+                }
+            }
+        },
         "handlers.statsResponse": {
             "type": "object",
             "properties": {
@@ -200,6 +524,199 @@ const docTemplate = `{
                 },
                 "messagesSent": {
                     "type": "integer"
+                }
+            }
+        },
+        "smsgateway.DataMessage": {
+            "type": "object",
+            "required": [
+                "data",
+                "port"
+            ],
+            "properties": {
+                "data": {
+                    "description": "Data is the base64-encoded payload.",
+                    "type": "string",
+                    "format": "byte",
+                    "maxLength": 65535,
+                    "minLength": 4,
+                    "example": "SGVsbG8gV29ybGQh"
+                },
+                "port": {
+                    "description": "Port is the destination port.",
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1,
+                    "example": 53739
+                }
+            }
+        },
+        "smsgateway.HashedMessage": {
+            "type": "object",
+            "required": [
+                "hash"
+            ],
+            "properties": {
+                "hash": {
+                    "type": "string",
+                    "example": "1d4b6e3b1b6e3b1b6e3b1b6e3b1b6e3b1b6e3b1b"
+                }
+            }
+        },
+        "smsgateway.MessageState": {
+            "type": "object",
+            "required": [
+                "deviceId",
+                "id",
+                "recipients",
+                "state"
+            ],
+            "properties": {
+                "dataMessage": {
+                    "description": "Present only when ` + "`" + `includeContent=true` + "`" + ` and the message type is data.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.DataMessage"
+                        }
+                    ]
+                },
+                "deviceId": {
+                    "description": "Device ID",
+                    "type": "string",
+                    "maxLength": 21,
+                    "example": "PyDmBQZZXYmyxMwED8Fzy"
+                },
+                "hashedMessage": {
+                    "description": "Hashed message content, if isHashed is true",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.HashedMessage"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "Message ID",
+                    "type": "string",
+                    "maxLength": 36,
+                    "example": "PyDmBQZZXYmyxMwED8Fzy"
+                },
+                "isEncrypted": {
+                    "description": "Encrypted",
+                    "type": "boolean",
+                    "example": false
+                },
+                "isHashed": {
+                    "description": "Hashed",
+                    "type": "boolean",
+                    "example": false
+                },
+                "recipients": {
+                    "description": "Recipients states",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/smsgateway.RecipientState"
+                    }
+                },
+                "state": {
+                    "description": "State",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.ProcessingState"
+                        }
+                    ],
+                    "example": "Pending"
+                },
+                "states": {
+                    "description": "History of states",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "textMessage": {
+                    "description": "Present only when ` + "`" + `includeContent=true` + "`" + ` and the message type is text.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.TextMessage"
+                        }
+                    ]
+                }
+            }
+        },
+        "smsgateway.ProcessingState": {
+            "type": "string",
+            "enum": [
+                "Pending",
+                "Processed",
+                "Sent",
+                "Delivered",
+                "Failed"
+            ],
+            "x-enum-comments": {
+                "ProcessingStateDelivered": "Delivered",
+                "ProcessingStateFailed": "Failed",
+                "ProcessingStatePending": "Pending",
+                "ProcessingStateProcessed": "Processed (received by device)",
+                "ProcessingStateSent": "Sent"
+            },
+            "x-enum-descriptions": [
+                "Pending",
+                "Processed (received by device)",
+                "Sent",
+                "Delivered",
+                "Failed"
+            ],
+            "x-enum-varnames": [
+                "ProcessingStatePending",
+                "ProcessingStateProcessed",
+                "ProcessingStateSent",
+                "ProcessingStateDelivered",
+                "ProcessingStateFailed"
+            ]
+        },
+        "smsgateway.RecipientState": {
+            "type": "object",
+            "required": [
+                "phoneNumber",
+                "state"
+            ],
+            "properties": {
+                "error": {
+                    "description": "Error (for ` + "`" + `Failed` + "`" + ` state)",
+                    "type": "string",
+                    "example": "timeout"
+                },
+                "phoneNumber": {
+                    "description": "Phone number or first 16 symbols of SHA256 hash",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "example": "79990001234"
+                },
+                "state": {
+                    "description": "State",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.ProcessingState"
+                        }
+                    ],
+                    "example": "Pending"
+                }
+            }
+        },
+        "smsgateway.TextMessage": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "text": {
+                    "description": "Text is the message text.",
+                    "type": "string",
+                    "maxLength": 65535,
+                    "minLength": 1,
+                    "example": "Hello World!"
                 }
             }
         }
