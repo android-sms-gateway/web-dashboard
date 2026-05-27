@@ -1,6 +1,8 @@
 <script lang="ts">
   import Sidebar from "../components/Sidebar.svelte";
   import DashboardPage from "./DashboardPage.svelte";
+  import MessagesPage from "./MessagesPage.svelte";
+  import DevicesPage from "./DevicesPage.svelte";
 
   let { onLogout }: { onLogout: () => void } = $props();
 
@@ -16,6 +18,10 @@
   <main class="content">
     {#if currentPage === "dashboard"}
       <DashboardPage />
+    {:else if currentPage === "messages"}
+      <MessagesPage />
+    {:else if currentPage === "devices"}
+      <DevicesPage />
     {:else}
       <h2>{currentPage}</h2>
       <p>This page is coming soon.</p>
