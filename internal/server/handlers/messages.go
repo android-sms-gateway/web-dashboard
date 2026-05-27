@@ -41,18 +41,19 @@ func NewMessagesHandler(
 func (h *MessagesHandler) Register(r fiber.Router) {
 	g := r.Group("/messages", session.AuthRequired(), client.New(h.gatewaySvc))
 
-	g.Get("/", h.list)
-	g.Post("/", validation.DecorateWithBodyEx(h.Validator, h.send))
-	g.Get("/:id", h.get)
+	g.Get("", h.list)
+	g.Post("", validation.DecorateWithBodyEx(h.Validator, h.send))
+	g.Get(":id", h.get)
 }
 
 type messageListQuery struct {
-	Limit    *int       `query:"limit"    validate:"omitempty,min=1,max=100"`
-	Offset   *int       `query:"offset"   validate:"omitempty,min=0"`
-	State    *string    `query:"state"`
-	DeviceID *string    `query:"deviceId"`
-	From     *time.Time `query:"from"`
-	To       *time.Time `query:"to"`
+	Limit          *int       `query:"limit"          validate:"omitempty,min=1,max=100"`
+	Offset         *int       `query:"offset"         validate:"omitempty,min=0"`
+	State          *string    `query:"state"`
+	DeviceID       *string    `query:"deviceId"`
+	From           *time.Time `query:"from"`
+	To             *time.Time `query:"to"`
+	IncludeContent *bool      `query:"includeContent"`
 }
 
 func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
@@ -63,7 +64,7 @@ func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
 		DeviceID:       q.DeviceID,
 		From:           q.From,
 		To:             q.To,
-		IncludeContent: lo.ToPtr(true),
+		IncludeContent: q.IncludeContent,
 	}
 }
 
@@ -125,10 +126,9 @@ func (h *MessagesHandler) list(c *fiber.Ctx) error {
 	for i, m := range messages {
 		preview := ""
 		if m.TextMessage != nil {
-			preview = m.TextMessage.Text
-			if len(preview) > previewLength {
-				preview = preview[:previewLength] + "..."
-			}
+			preview = lo.Substring(m.TextMessage.Text, 0, previewLength)
+		} else if m.HashedMessage != nil {
+			preview = "hash: " + lo.Substring(m.HashedMessage.Hash, 0, previewLength)
 		}
 
 		var recipients []recipientItem

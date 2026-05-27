@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse, Me, Stats } from './types';
+import type { Device, ListMessagesResponse, LoginRequest, LoginResponse, Me, MessageDetail, SendMessageRequest, Stats } from './types';
 
 const BASE = '/api/v1';
 
@@ -37,4 +37,27 @@ export function me() {
 
 export function stats() {
   return request<Stats>('/stats');
+}
+
+export function listMessages(params?: string) {
+  return request<ListMessagesResponse>(`/messages${params ? '?' + params : ''}`);
+}
+
+export function getMessage(id: string) {
+  return request<MessageDetail>(`/messages/${encodeURIComponent(id)}`);
+}
+
+export function sendMessage(data: SendMessageRequest) {
+  return request<MessageDetail>('/messages', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function listDevices() {
+  return request<Device[]>('/devices');
+}
+
+export function deleteDevice(id: string) {
+  return request<void>(`/devices/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
