@@ -15,6 +15,9 @@ func Module() fx.Option {
 			fx.Annotate(NewDashboardHandler, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(NewMessagesHandler, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(NewDevicesHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewWebhooksHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewSettingsHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewTokensHandler, fx.ResultTags(`group:"handlers"`)),
 		),
 	)
 }

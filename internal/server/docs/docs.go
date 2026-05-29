@@ -330,6 +330,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/settings": {
+            "get": {
+                "description": "Returns current device settings.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Get settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.DeviceSettings"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Partially updates device settings. Only included fields will be changed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update settings",
+                "parameters": [
+                    {
+                        "description": "Settings to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.DeviceSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.DeviceSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stats": {
             "get": {
                 "description": "Returns aggregated statistics for the dashboard (devices, messages).",
@@ -355,6 +425,201 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tokens": {
+            "post": {
+                "description": "Generates a new API token with specified scopes and optional TTL.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tokens"
+                ],
+                "summary": "Create token",
+                "parameters": [
+                    {
+                        "description": "Token request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.createTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tokens/{jti}": {
+            "delete": {
+                "description": "Invalidates an API token by its JTI (token ID).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tokens"
+                ],
+                "summary": "Revoke token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token JTI",
+                        "name": "jti",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks": {
+            "get": {
+                "description": "Returns all registered webhooks.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "List webhooks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.webhookListItem"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Registers a new webhook for the specified event.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Create webhook",
+                "parameters": [
+                    {
+                        "description": "Webhook to create",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.createWebhookRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/smsgateway.Webhook"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/{id}": {
+            "delete": {
+                "description": "Removes a webhook by its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Delete webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Webhook ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -366,6 +631,42 @@ const docTemplate = `{
                 },
                 "details": {},
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.createTokenRequest": {
+            "type": "object",
+            "required": [
+                "scopes"
+            ],
+            "properties": {
+                "scopes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ttl": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.createWebhookRequest": {
+            "type": "object",
+            "required": [
+                "event",
+                "url"
+            ],
+            "properties": {
+                "deviceId": {
+                    "type": "string"
+                },
+                "event": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }
@@ -527,6 +828,23 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.webhookListItem": {
+            "type": "object",
+            "properties": {
+                "deviceId": {
+                    "type": "string"
+                },
+                "event": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "smsgateway.DataMessage": {
             "type": "object",
             "required": [
@@ -551,6 +869,59 @@ const docTemplate = `{
                 }
             }
         },
+        "smsgateway.DeviceSettings": {
+            "type": "object",
+            "properties": {
+                "encryption": {
+                    "description": "Encryption contains settings related to message encryption.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsEncryption"
+                        }
+                    ]
+                },
+                "gateway": {
+                    "description": "Gateway contains settings related to the gateway.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsGateway"
+                        }
+                    ]
+                },
+                "logs": {
+                    "description": "Logs contains settings related to logging.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsLogs"
+                        }
+                    ]
+                },
+                "messages": {
+                    "description": "Messages contains settings related to message handling.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsMessages"
+                        }
+                    ]
+                },
+                "ping": {
+                    "description": "Ping contains settings related to ping functionality.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsPing"
+                        }
+                    ]
+                },
+                "webhooks": {
+                    "description": "Webhooks contains settings related to webhook functionality.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsWebhooks"
+                        }
+                    ]
+                }
+            }
+        },
         "smsgateway.HashedMessage": {
             "type": "object",
             "required": [
@@ -562,6 +933,21 @@ const docTemplate = `{
                     "example": "1d4b6e3b1b6e3b1b6e3b1b6e3b1b6e3b1b6e3b1b"
                 }
             }
+        },
+        "smsgateway.LimitPeriod": {
+            "type": "string",
+            "enum": [
+                "Disabled",
+                "PerMinute",
+                "PerHour",
+                "PerDay"
+            ],
+            "x-enum-varnames": [
+                "Disabled",
+                "PerMinute",
+                "PerHour",
+                "PerDay"
+            ]
         },
         "smsgateway.MessageState": {
             "type": "object",
@@ -644,6 +1030,17 @@ const docTemplate = `{
                 }
             }
         },
+        "smsgateway.MessagesProcessingOrder": {
+            "type": "string",
+            "enum": [
+                "LIFO",
+                "FIFO"
+            ],
+            "x-enum-varnames": [
+                "LIFO",
+                "FIFO"
+            ]
+        },
         "smsgateway.ProcessingState": {
             "type": "string",
             "enum": [
@@ -705,6 +1102,151 @@ const docTemplate = `{
                 }
             }
         },
+        "smsgateway.SettingsEncryption": {
+            "type": "object",
+            "properties": {
+                "passphrase": {
+                    "description": "Passphrase is the encryption passphrase. If nil or empty, encryption is disabled. Must not be used with Cloud Server.",
+                    "type": "string"
+                }
+            }
+        },
+        "smsgateway.SettingsGateway": {
+            "type": "object",
+            "properties": {
+                "cloud_url": {
+                    "description": "CloudURL is the URL of the cloud server. Must not be used with Cloud Server.",
+                    "type": "string"
+                },
+                "notification_channel": {
+                    "description": "NotificationChannel is the way device receives notifications.",
+                    "type": "string",
+                    "enum": [
+                        "AUTO",
+                        "SSE_ONLY"
+                    ]
+                },
+                "private_token": {
+                    "description": "PrivateToken is the auth token for the private server. Must not be used with Cloud Server.",
+                    "type": "string"
+                }
+            }
+        },
+        "smsgateway.SettingsLogs": {
+            "type": "object",
+            "properties": {
+                "lifetime_days": {
+                    "description": "LifetimeDays is the number of days to retain logs.\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "smsgateway.SettingsMessages": {
+            "type": "object",
+            "properties": {
+                "limit_period": {
+                    "description": "LimitPeriod defines the period for message sending limits.\nValid values are \"Disabled\", \"PerMinute\", \"PerHour\", or \"PerDay\".",
+                    "enum": [
+                        "Disabled",
+                        "PerMinute",
+                        "PerHour",
+                        "PerDay"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.LimitPeriod"
+                        }
+                    ]
+                },
+                "limit_value": {
+                    "description": "LimitValue is the maximum number of messages allowed per limit period.\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "log_lifetime_days": {
+                    "description": "LogLifetimeDays is the number of days to retain message logs.\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "processing_order": {
+                    "description": "MessagesProcessingOrder defines the order in which messages are processed.\nValid values are \"LIFO\" or \"FIFO\".",
+                    "enum": [
+                        "LIFO",
+                        "FIFO"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.MessagesProcessingOrder"
+                        }
+                    ]
+                },
+                "send_interval_max": {
+                    "description": "SendIntervalMax is the maximum interval between message sends (in seconds).\nMust be at least 1 when provided and greater than or equal to SendIntervalMin.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "send_interval_min": {
+                    "description": "SendIntervalMin is the minimum interval between message sends (in seconds).\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "sim_selection_mode": {
+                    "description": "SimSelectionMode defines how SIM cards are selected for sending messages.\nValid values are \"OSDefault\", \"RoundRobin\", or \"Random\".",
+                    "enum": [
+                        "OSDefault",
+                        "RoundRobin",
+                        "Random"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SimSelectionMode"
+                        }
+                    ]
+                }
+            }
+        },
+        "smsgateway.SettingsPing": {
+            "type": "object",
+            "properties": {
+                "interval_seconds": {
+                    "description": "IntervalSeconds is the interval between ping requests (in seconds).\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "smsgateway.SettingsWebhooks": {
+            "type": "object",
+            "properties": {
+                "internet_required": {
+                    "description": "InternetRequired indicates whether internet access is required for webhooks.",
+                    "type": "boolean"
+                },
+                "retry_count": {
+                    "description": "RetryCount is the number of times to retry failed webhook deliveries.\nMust be at least 1 when provided.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "signing_key": {
+                    "description": "SigningKey is the secret key used for signing webhook payloads. Must not be used with Cloud Server.",
+                    "type": "string"
+                }
+            }
+        },
+        "smsgateway.SimSelectionMode": {
+            "type": "string",
+            "enum": [
+                "OSDefault",
+                "RoundRobin",
+                "Random"
+            ],
+            "x-enum-varnames": [
+                "OSDefault",
+                "RoundRobin",
+                "Random"
+            ]
+        },
         "smsgateway.TextMessage": {
             "type": "object",
             "required": [
@@ -719,6 +1261,110 @@ const docTemplate = `{
                     "example": "Hello World!"
                 }
             }
+        },
+        "smsgateway.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "actual access token",
+                    "type": "string"
+                },
+                "expires_at": {
+                    "description": "time at which the access token is no longer valid",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "id": {
+                    "description": "unique identifier for the access token",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "refresh token",
+                    "type": "string"
+                },
+                "token_type": {
+                    "description": "type of the access token",
+                    "type": "string"
+                }
+            }
+        },
+        "smsgateway.Webhook": {
+            "type": "object",
+            "required": [
+                "event",
+                "url"
+            ],
+            "properties": {
+                "deviceId": {
+                    "description": "The unique identifier of the device the webhook is associated with.",
+                    "type": "string",
+                    "maxLength": 21,
+                    "example": "PyDmBQZZXYmyxMwED8Fzy"
+                },
+                "event": {
+                    "description": "The type of event the webhook is triggered for.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.WebhookEvent"
+                        }
+                    ],
+                    "example": "sms:received"
+                },
+                "id": {
+                    "description": "The unique identifier of the webhook.",
+                    "type": "string",
+                    "maxLength": 36,
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "url": {
+                    "description": "The URL the webhook will be sent to.",
+                    "type": "string",
+                    "example": "https://example.com/webhook"
+                }
+            }
+        },
+        "smsgateway.WebhookEvent": {
+            "type": "string",
+            "enum": [
+                "sms:received",
+                "sms:data-received",
+                "sms:sent",
+                "sms:delivered",
+                "sms:failed",
+                "system:ping",
+                "mms:received",
+                "mms:downloaded"
+            ],
+            "x-enum-comments": {
+                "WebhookEventMmsDownloaded": "Triggered when an MMS is downloaded.",
+                "WebhookEventMmsReceived": "Triggered when an MMS is received.",
+                "WebhookEventSmsDataReceived": "Triggered when a data SMS is received.",
+                "WebhookEventSmsDelivered": "Triggered when an SMS is delivered.",
+                "WebhookEventSmsFailed": "Triggered when an SMS processing fails.",
+                "WebhookEventSmsReceived": "Triggered when an SMS is received.",
+                "WebhookEventSmsSent": "Triggered when an SMS is sent.",
+                "WebhookEventSystemPing": "Triggered when the device pings the server."
+            },
+            "x-enum-descriptions": [
+                "Triggered when an SMS is received.",
+                "Triggered when a data SMS is received.",
+                "Triggered when an SMS is sent.",
+                "Triggered when an SMS is delivered.",
+                "Triggered when an SMS processing fails.",
+                "Triggered when the device pings the server.",
+                "Triggered when an MMS is received.",
+                "Triggered when an MMS is downloaded."
+            ],
+            "x-enum-varnames": [
+                "WebhookEventSmsReceived",
+                "WebhookEventSmsDataReceived",
+                "WebhookEventSmsSent",
+                "WebhookEventSmsDelivered",
+                "WebhookEventSmsFailed",
+                "WebhookEventSystemPing",
+                "WebhookEventMmsReceived",
+                "WebhookEventMmsDownloaded"
+            ]
         }
     }
 }`
