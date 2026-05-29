@@ -5,15 +5,19 @@
 
   let devices = $state<Device[]>([]);
   let loading = $state(true);
+  let loadError = $state("");
 
   onMount(load);
 
   async function load() {
     loading = true;
+    loadError = "";
     try {
       devices = await listDevices();
-    } catch {
+    } catch (error) {
       devices = [];
+      loadError = "Failed to load devices";
+      console.error("Failed to load devices:", error);
     } finally {
       loading = false;
     }
@@ -26,7 +30,7 @@
     deleting = id;
     try {
       await deleteDevice(id);
-      devices = devices.filter(d => d.id !== id);
+      devices = devices.filter((d) => d.id !== id);
     } catch {
       // ignore
     } finally {
@@ -35,7 +39,9 @@
   }
 
   function timeAgo(iso: string): string {
-    const diff = Date.now() - new Date(iso).getTime();
+    const ts = new Date(iso).getTime();
+    if (!Number.isFinite(ts)) return "unknown";
+    const diff = Date.now() - ts;
     const minutes = Math.floor(diff / 60000);
     if (minutes < 1) return "just now";
     if (minutes < 60) return `${minutes}m ago`;
@@ -53,10 +59,14 @@
 
   {#if loading}
     <p>Loading...</p>
+  {:else if loadError}
+    <p class="empty">{loadError}</p>
   {:else if devices.length === 0}
     <p class="empty">No devices registered.</p>
   {:else}
-    <p class="total">{devices.length} device{devices.length !== 1 ? "s" : ""}</p>
+    <p class="total">
+      {devices.length} device{devices.length !== 1 ? "s" : ""}
+    </p>
     <table class="table">
       <thead>
         <tr>
