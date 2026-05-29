@@ -62,6 +62,15 @@ export interface SendMessageRequest {
   priority?: number;
 }
 
+export interface ListMessagesParams {
+  limit?: number;
+  offset?: number;
+  state?: string;
+  deviceId?: string;
+  from?: string;
+  to?: string;
+}
+
 export interface ListMessagesResponse {
   items: MessageListItem[];
   total: number;

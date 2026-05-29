@@ -47,13 +47,12 @@ func (h *MessagesHandler) Register(r fiber.Router) {
 }
 
 type messageListQuery struct {
-	Limit          *int       `query:"limit"          validate:"omitempty,min=1,max=100"`
-	Offset         *int       `query:"offset"         validate:"omitempty,min=0"`
-	State          *string    `query:"state"`
-	DeviceID       *string    `query:"deviceId"`
-	From           *time.Time `query:"from"`
-	To             *time.Time `query:"to"`
-	IncludeContent *bool      `query:"includeContent"`
+	Limit    *int       `query:"limit"    validate:"omitempty,min=1,max=100"`
+	Offset   *int       `query:"offset"   validate:"omitempty,min=0"`
+	State    *string    `query:"state"`
+	DeviceID *string    `query:"deviceId"`
+	From     *time.Time `query:"from"`
+	To       *time.Time `query:"to"`
 }
 
 func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
@@ -64,7 +63,7 @@ func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
 		DeviceID:       q.DeviceID,
 		From:           q.From,
 		To:             q.To,
-		IncludeContent: q.IncludeContent,
+		IncludeContent: lo.ToPtr(true),
 	}
 }
 

@@ -1,4 +1,4 @@
-import type { CreateTokenRequest, CreateTokenResponse, CreateWebhookRequest, Device, DeviceSettings, ListMessagesResponse, LoginRequest, LoginResponse, Me, MessageDetail, SendMessageRequest, Stats, Webhook } from './types';
+import type { CreateTokenRequest, CreateTokenResponse, CreateWebhookRequest, Device, DeviceSettings, ListMessagesResponse, LoginRequest, LoginResponse, Me, MessageDetail, SendMessageRequest, Stats, Webhook, ListMessagesParams } from './types';
 
 const BASE = '/api/v1';
 
@@ -39,8 +39,17 @@ export function stats() {
   return request<Stats>('/stats');
 }
 
-export function listMessages(params?: string) {
-  return request<ListMessagesResponse>(`/messages${params ? '?' + params : ''}`);
+export function listMessages(
+  params?: ListMessagesParams,
+) {
+  const query = new URLSearchParams();
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) query.set(key, String(value));
+    }
+  }
+  const qs = query.toString();
+  return request<ListMessagesResponse>(`/messages${qs ? `?${qs}` : ""}`);
 }
 
 export function getMessage(id: string) {

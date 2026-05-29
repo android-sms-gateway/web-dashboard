@@ -13,8 +13,10 @@
   let messages = $state<MessageListItem[]>([]);
   let total = $state(0);
   let loading = $state(true);
+  let loadError = $state("");
   let selectedMessage = $state<MessageDetail | null>(null);
   let loadingDetail = $state(false);
+  let detailError = $state("");
 
   let phoneInput = $state("");
   let textInput = $state("");
@@ -26,11 +28,13 @@
 
   async function loadMessages() {
     loading = true;
+    loadError = "";
     try {
-      const res = await listMessages("limit=50&includeContent=true");
+      const res = await listMessages({ limit: 50 });
       messages = res.items;
       total = res.total;
     } catch {
+      loadError = "Failed to load messages";
       messages = [];
       total = 0;
     } finally {
@@ -42,10 +46,12 @@
     view = "detail";
     loadingDetail = true;
     selectedMessage = null;
+    detailError = "";
     try {
       selectedMessage = await getMessage(id);
     } catch {
       selectedMessage = null;
+      detailError = "Failed to load message details";
     } finally {
       loadingDetail = false;
     }
@@ -195,6 +201,8 @@
 
     {#if loadingDetail}
       <p>Loading...</p>
+    {:else if detailError}
+      <p class="empty">{detailError}</p>
     {:else if selectedMessage}
       <div class="detail-card">
         <div class="detail-row">
@@ -291,6 +299,8 @@
 
     {#if loading}
       <p>Loading...</p>
+    {:else if loadError}
+      <p class="empty">{loadError}</p>
     {:else if messages.length === 0}
       <p class="empty">No messages yet.</p>
     {:else}
