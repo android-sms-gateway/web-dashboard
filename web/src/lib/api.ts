@@ -1,4 +1,4 @@
-import type { Device, ListMessagesResponse, LoginRequest, LoginResponse, Me, MessageDetail, SendMessageRequest, Stats } from './types';
+import type { CreateTokenRequest, CreateTokenResponse, CreateWebhookRequest, Device, DeviceSettings, ListMessagesResponse, LoginRequest, LoginResponse, Me, MessageDetail, SendMessageRequest, Stats, Webhook } from './types';
 
 const BASE = '/api/v1';
 
@@ -60,4 +60,41 @@ export function listDevices() {
 
 export function deleteDevice(id: string) {
   return request<void>(`/devices/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export function listWebhooks() {
+  return request<Webhook[]>('/webhooks');
+}
+
+export function createWebhook(data: CreateWebhookRequest) {
+  return request<Webhook>('/webhooks', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteWebhook(id: string) {
+  return request<void>(`/webhooks/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export function getSettings() {
+  return request<DeviceSettings>('/settings');
+}
+
+export function updateSettings(data: DeviceSettings) {
+  return request<DeviceSettings>('/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export function createToken(data: CreateTokenRequest) {
+  return request<CreateTokenResponse>('/tokens', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function revokeToken(jti: string) {
+  return request<void>(`/tokens/${encodeURIComponent(jti)}`, { method: 'DELETE' });
 }

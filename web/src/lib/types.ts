@@ -66,3 +66,54 @@ export interface ListMessagesResponse {
   items: MessageListItem[];
   total: number;
 }
+
+export interface Webhook {
+  id: string;
+  url: string;
+  event: string;
+  deviceId?: string;
+}
+
+export interface CreateWebhookRequest {
+  url: string;
+  event: string;
+  deviceId?: string;
+}
+
+export interface DeviceSettings {
+  encryption?: { passphrase?: string };
+  messages?: {
+    sendIntervalMin?: number;
+    sendIntervalMax?: number;
+    limitPeriod?: "Disabled" | "PerMinute" | "PerHour" | "PerDay";
+    limitValue?: number;
+    simSelectionMode?: "OSDefault" | "RoundRobin" | "Random";
+    logLifetimeDays?: number;
+    processingOrder?: "LIFO" | "FIFO";
+  };
+  ping?: { intervalSeconds?: number };
+  logs?: { lifetimeDays?: number };
+  webhooks?: {
+    internetRequired?: boolean;
+    retryCount?: number;
+    signingKey?: string;
+  };
+  gateway?: {
+    cloudUrl?: string;
+    privateToken?: string;
+    notificationChannel?: "AUTO" | "SSE_ONLY";
+  };
+}
+
+export interface CreateTokenRequest {
+  ttl?: number;
+  scopes: string[];
+}
+
+export interface CreateTokenResponse {
+  id: string;
+  token_type: string;
+  access_token: string;
+  refresh_token?: string;
+  expires_at: string;
+}
