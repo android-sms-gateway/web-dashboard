@@ -3,6 +3,9 @@
   import DashboardPage from "./DashboardPage.svelte";
   import MessagesPage from "./MessagesPage.svelte";
   import DevicesPage from "./DevicesPage.svelte";
+  import WebhooksPage from "./WebhooksPage.svelte";
+  import SettingsPage from "./SettingsPage.svelte";
+  import TokensPage from "./TokensPage.svelte";
 
   let { onLogout }: { onLogout: () => void } = $props();
 
@@ -22,6 +25,12 @@
       <MessagesPage />
     {:else if currentPage === "devices"}
       <DevicesPage />
+    {:else if currentPage === "webhooks"}
+      <WebhooksPage />
+    {:else if currentPage === "settings"}
+      <SettingsPage />
+    {:else if currentPage === "tokens"}
+      <TokensPage />
     {:else}
       <h2>{currentPage}</h2>
       <p>This page is coming soon.</p>
