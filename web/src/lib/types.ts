@@ -58,6 +58,7 @@ export interface RecipientState {
 export interface SendMessageRequest {
   phoneNumbers: string[];
   text: string;
+  deviceId?: string;
   simNumber?: number;
   priority?: number;
 }
