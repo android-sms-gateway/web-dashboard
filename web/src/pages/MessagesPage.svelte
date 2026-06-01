@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { listMessages, getMessage, sendMessage } from "../lib/api";
+  import DeviceSelect from "../components/DeviceSelect.svelte";
+  import DeviceLabel from "../components/DeviceLabel.svelte";
   import type {
     MessageListItem,
     MessageDetail,
@@ -20,6 +22,7 @@
 
   let phoneInput = $state("");
   let textInput = $state("");
+  let deviceIdFilter: string = $state("");
   let simInput: string = $state("");
   let sending = $state(false);
   let sendError = $state("");
@@ -61,6 +64,7 @@
     view = "compose";
     phoneInput = "";
     textInput = "";
+    deviceIdFilter = "";
     simInput = "";
     sendError = "";
   }
@@ -93,6 +97,9 @@
       text: textInput.trim(),
     };
 
+    if (deviceIdFilter) {
+      data.deviceId = deviceIdFilter;
+    }
     if (simInput.trim()) {
       const n = parseInt(simInput.trim(), 10);
       if (n >= 1 && n <= 3) data.simNumber = n;
@@ -179,6 +186,15 @@
         disabled={sending}
       ></textarea>
 
+      <label for="device-select">Device</label>
+      <DeviceSelect
+        id="device-select"
+        value={deviceIdFilter}
+        onValueChange={(v) => (deviceIdFilter = v)}
+        disabled={sending}
+        allLabel="Any device"
+      />
+
       <label for="sim">SIM Number (optional, 1-3)</label>
       <input
         id="sim"
@@ -211,7 +227,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Device</span>
-          <span class="detail-value">{selectedMessage.deviceId}</span>
+          <span class="detail-value"><DeviceLabel deviceId={selectedMessage.deviceId} /></span>
         </div>
         <div class="detail-row">
           <span class="detail-label">State</span>

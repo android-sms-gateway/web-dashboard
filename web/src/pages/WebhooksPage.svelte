@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { listWebhooks, createWebhook, deleteWebhook } from "../lib/api";
+  import DeviceSelect from "../components/DeviceSelect.svelte";
+  import DeviceLabel from "../components/DeviceLabel.svelte";
   import type { Webhook, CreateWebhookRequest } from "../lib/types";
 
   type View = "list" | "create";
@@ -86,7 +88,7 @@
     deletingId = id;
     try {
       await deleteWebhook(id);
-      webhooks = webhooks.filter(w => w.id !== id);
+      webhooks = webhooks.filter((w) => w.id !== id);
     } catch {
       // ignore
     } finally {
@@ -95,7 +97,7 @@
   }
 
   function eventLabel(value: string): string {
-    const e = events.find(e => e.value === value);
+    const e = events.find((e) => e.value === value);
     return e ? e.label : value;
   }
 </script>
@@ -107,7 +109,13 @@
       <h2>Add Webhook</h2>
     </div>
 
-    <form class="form" onsubmit={(e) => { e.preventDefault(); handleCreate(); }}>
+    <form
+      class="form"
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleCreate();
+      }}
+    >
       {#if error}
         <div class="error-msg">{error}</div>
       {/if}
@@ -120,16 +128,26 @@
       </select>
 
       <label for="url">URL</label>
-      <input id="url" type="url" bind:value={urlInput} placeholder="https://example.com/webhook" disabled={saving} />
+      <input
+        id="url"
+        type="url"
+        bind:value={urlInput}
+        placeholder="https://example.com/webhook"
+        disabled={saving}
+      />
 
-      <label for="deviceId">Device ID (optional)</label>
-      <input id="deviceId" type="text" bind:value={deviceIdInput} placeholder="Leave empty for all devices" disabled={saving} />
+      <label for="deviceId">Device (optional)</label>
+      <DeviceSelect
+        id="deviceId"
+        value={deviceIdInput}
+        onValueChange={(v) => (deviceIdInput = v)}
+        disabled={saving}
+      />
 
       <button type="submit" class="btn-primary" disabled={saving}>
         {saving ? "Creating..." : "Create Webhook"}
       </button>
     </form>
-
   {:else}
     <div class="header">
       <h2>Webhooks</h2>
@@ -141,7 +159,9 @@
     {:else if webhooks.length === 0}
       <p class="empty">No webhooks configured.</p>
     {:else}
-      <p class="total">{webhooks.length} webhook{webhooks.length !== 1 ? "s" : ""}</p>
+      <p class="total">
+        {webhooks.length} webhook{webhooks.length !== 1 ? "s" : ""}
+      </p>
       <table class="table">
         <thead>
           <tr>
@@ -154,9 +174,13 @@
         <tbody>
           {#each webhooks as w}
             <tr>
-              <td><span class="badge badge-blue">{eventLabel(w.event)}</span></td>
+              <td
+                ><span class="badge badge-blue">{eventLabel(w.event)}</span></td
+              >
               <td class="url">{w.url}</td>
-              <td class="mono">{w.deviceId || "(all)"}</td>
+              <td class="mono"
+                ><DeviceLabel deviceId={w.deviceId} emptyLabel="(all)" /></td
+              >
               <td>
                 <button
                   class="btn-danger-small"
