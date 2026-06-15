@@ -3,6 +3,7 @@ export interface Stats {
   messagesPending: number;
   messagesFailed: number;
   devicesOnline: number;
+  devicesActive: number;
   devicesTotal: number;
 }
 

@@ -422,6 +422,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -811,6 +817,9 @@ const docTemplate = `{
         "handlers.statsResponse": {
             "type": "object",
             "properties": {
+                "devicesActive": {
+                    "type": "integer"
+                },
                 "devicesOnline": {
                     "type": "integer"
                 },
