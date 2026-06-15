@@ -6,6 +6,7 @@
     messagesPending: number;
     messagesFailed: number;
     devicesOnline: number;
+    devicesActive: number;
     devicesTotal: number;
   } | null = $state(null);
   let userName = $state("");
@@ -43,6 +44,10 @@
     <div class="card">
       <div class="card-value">{stats?.devicesOnline ?? "?"}</div>
       <div class="card-label">Devices Online</div>
+    </div>
+    <div class="card">
+      <div class="card-value">{stats?.devicesActive ?? "?"}</div>
+      <div class="card-label">Devices Active</div>
     </div>
     <div class="card">
       <div class="card-value">{stats?.devicesTotal ?? "?"}</div>
