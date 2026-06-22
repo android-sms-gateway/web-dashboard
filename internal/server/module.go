@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/android-sms-gateway/web-dashboard/internal/server/docs"
+	"github.com/android-sms-gateway/web-dashboard/internal/server/events"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/handlers"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/session"
+	"github.com/android-sms-gateway/web-dashboard/internal/server/webhooks"
 	"github.com/android-sms-gateway/web-dashboard/internal/web"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/fiberfx/handler"
@@ -40,11 +42,15 @@ func Module() fx.Option {
 		),
 
 		handlers.Module(),
+		events.Module(),
+		webhooks.Module(),
+
 		fx.Invoke(
 			fx.Annotate(
-				func(handlers []handler.Handler, healthHandler *health.Handler, openapiHandler *openapi.Handler, app *fiber.App) {
+				func(handlers []handler.Handler, callbackHandler *handlers.CallbackHandler, healthHandler *health.Handler, openapiHandler *openapi.Handler, app *fiber.App) {
 					// Health endpoint
 					healthHandler.Register(app)
+					callbackHandler.Register(app)
 
 					v1 := app.Group("/api/v1")
 					openapiHandler.Register(v1.Group("/docs"))

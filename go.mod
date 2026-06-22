@@ -11,6 +11,7 @@ require (
 	github.com/go-core-fx/validatorfx v0.0.2
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/gofiber/fiber/v2 v2.52.13
+	github.com/google/uuid v1.6.0
 	github.com/samber/lo v1.53.0
 	github.com/swaggo/swag v1.16.6
 	go.uber.org/fx v1.24.0
@@ -42,7 +43,6 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/gofiber/contrib/fiberzap/v2 v2.1.6 // indirect
 	github.com/gofiber/swagger v1.1.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
