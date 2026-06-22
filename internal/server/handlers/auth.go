@@ -93,14 +93,10 @@ func (h *AuthHandler) login(c *fiber.Ctx, req *loginRequest) error {
 //	@Router			/auth/logout [post]
 func (h *AuthHandler) logout(c *fiber.Ctx) error {
 	sess := session.Get(c)
-	if sess == nil {
-		h.logger.Warn("failed to get session")
-		return fiber.NewError(fiber.StatusInternalServerError, "failed to get session")
-	}
-
-	if err := sess.Destroy(); err != nil {
-		h.logger.Warn("failed to destroy session", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "failed to destroy session")
+	if sess != nil {
+		if destroyErr := sess.Destroy(); destroyErr != nil {
+			h.logger.Warn("failed to destroy session", zap.Error(destroyErr))
+		}
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)

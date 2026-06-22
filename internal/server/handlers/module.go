@@ -18,6 +18,8 @@ func Module() fx.Option {
 			fx.Annotate(NewWebhooksHandler, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(NewSettingsHandler, fx.ResultTags(`group:"handlers"`)),
 			fx.Annotate(NewTokensHandler, fx.ResultTags(`group:"handlers"`)),
+			fx.Annotate(NewSSEHandler, fx.ResultTags(`group:"handlers"`)),
+			NewCallbackHandler,
 		),
 	)
 }

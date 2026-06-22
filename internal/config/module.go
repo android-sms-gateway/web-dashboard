@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
+	"github.com/android-sms-gateway/web-dashboard/internal/server/webhooks"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/fiberfx/openapi"
 	"go.uber.org/fx"
@@ -30,8 +31,12 @@ func Module() fx.Option {
 		fx.Provide(
 			func(cfg Config) gateway.Config {
 				return gateway.Config{
-					URL:        cfg.Gateway.URL,
-					WebhookURL: cfg.Gateway.WebhookURL,
+					URL: cfg.Gateway.URL,
+				}
+			},
+			func(cfg Config) webhooks.Config {
+				return webhooks.Config{
+					URL: cfg.Webhooks.URL,
 				}
 			},
 		),
