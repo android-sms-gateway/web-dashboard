@@ -128,3 +128,25 @@ export interface CreateTokenResponse {
   refresh_token?: string;
   expires_at: string;
 }
+
+// SSE events from /api/v1/events
+export interface MessageReceivedPayload {
+  sender: string;
+  message: string;
+}
+
+export interface MessageStateChangedPayload {
+  messageId: string;
+  state: string;
+}
+
+export interface DeviceStatusChangedPayload {
+  deviceId: string;
+  isOnline: boolean;
+}
+
+export type SseEvent =
+  | { type: 'message.received'; payload: MessageReceivedPayload }
+  | { type: 'message.state_changed'; payload: MessageStateChangedPayload }
+  | { type: 'device.status_changed'; payload: DeviceStatusChangedPayload }
+  | { type: 'stats.updated'; payload: Record<string, never> };
