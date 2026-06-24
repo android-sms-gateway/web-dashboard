@@ -3,6 +3,9 @@
   import { listMessages, getMessage, sendMessage } from "../lib/api";
   import DeviceSelect from "../components/DeviceSelect.svelte";
   import DeviceLabel from "../components/DeviceLabel.svelte";
+  import FilterBar from "../components/FilterBar.svelte";
+  import Pagination from "../components/Pagination.svelte";
+  import type { FilterValue } from "../components/FilterBar.svelte";
   import type {
     MessageListItem,
     MessageDetail,
@@ -27,22 +30,73 @@
   let sending = $state(false);
   let sendError = $state("");
 
+  let offset = $state(0);
+  let limit = $state(50);
+  let loadSeq = 0;
+
+  let filterValue = $state<FilterValue>({
+    state: "",
+    deviceId: "",
+    from: "",
+    to: "",
+  });
+
+  const stateOptions = [
+    { value: "", label: "All states" },
+    { value: "Pending", label: "Pending" },
+    { value: "Processed", label: "Processed" },
+    { value: "Sent", label: "Sent" },
+    { value: "Delivered", label: "Delivered" },
+    { value: "Failed", label: "Failed" },
+  ];
+
   onMount(loadMessages);
 
   async function loadMessages() {
+    const seq = ++loadSeq;
     loading = true;
     loadError = "";
     try {
-      const res = await listMessages({ limit: 50 });
+      const res = await listMessages({
+        limit,
+        offset,
+        state: filterValue.state || undefined,
+        deviceId: filterValue.deviceId || undefined,
+        from: filterValue.from
+          ? new Date(`${filterValue.from}T00:00:00`).toISOString()
+          : undefined,
+        to: filterValue.to
+          ? new Date(`${filterValue.to}T23:59:59`).toISOString()
+          : undefined,
+      });
+      if (seq !== loadSeq) return;
       messages = res.items;
       total = res.total;
     } catch {
+      if (seq !== loadSeq) return;
       loadError = "Failed to load messages";
       messages = [];
       total = 0;
     } finally {
-      loading = false;
+      if (seq === loadSeq) loading = false;
     }
+  }
+
+  function onFilterChange(v: FilterValue) {
+    filterValue = v;
+    offset = 0;
+    loadMessages();
+  }
+
+  function onPageChange(newOffset: number) {
+    offset = newOffset;
+    loadMessages();
+  }
+
+  function onLimitChange(newLimit: number) {
+    limit = newLimit;
+    offset = 0;
+    loadMessages();
   }
 
   async function openDetail(id: string) {
@@ -227,7 +281,9 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Device</span>
-          <span class="detail-value"><DeviceLabel deviceId={selectedMessage.deviceId} /></span>
+          <span class="detail-value"
+            ><DeviceLabel deviceId={selectedMessage.deviceId} /></span
+          >
         </div>
         <div class="detail-row">
           <span class="detail-label">State</span>
@@ -313,6 +369,8 @@
       <button class="btn-primary" onclick={openCompose}>+ Send</button>
     </div>
 
+    <FilterBar value={filterValue} onChange={onFilterChange} {stateOptions} />
+
     {#if loading}
       <p>Loading...</p>
     {:else if loadError}
@@ -355,6 +413,7 @@
           {/each}
         </tbody>
       </table>
+      <Pagination {total} {offset} {limit} {onPageChange} {onLimitChange} />
     {/if}
   {/if}
 </div>
