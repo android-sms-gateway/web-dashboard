@@ -1,20 +1,24 @@
 <script lang="ts">
 	import { events, dismissToast } from "../lib/events.svelte";
+	import { fly } from "svelte/transition";
 
-	function variant(type: string): string {
-		if (type === "device.status_changed") return "warning";
-		return "info";
+	function variantClass(type: string): string {
+		if (type === "success") return "toast-success";
+		if (type === "error") return "toast-error";
+		if (type === "warning") return "toast-warning";
+		if (type === "info") return "toast-info";
+		if (type === "device.status_changed") return "toast-warning";
+		if (type === "message.received") return "toast-info";
+		return "toast-info";
 	}
 </script>
 
 <div class="toast-container" role="status" aria-live="polite">
 	{#each events.toasts as t (t.id)}
-		<div class="toast toast-{variant(t.type)}">
+		<div class="toast {variantClass(t.type)}" transition:fly={{ y: -16, duration: 250, opacity: 0 }}>
 			<div class="toast-type">{t.type}</div>
 			<div class="toast-message">{t.message}</div>
-			<button class="toast-close" aria-label="Dismiss" onclick={() => dismissToast(t.id)}
-				>×</button
-			>
+			<button class="toast-close" aria-label="Dismiss" onclick={() => dismissToast(t.id)}>×</button>
 		</div>
 	{/each}
 </div>
@@ -59,6 +63,10 @@
 
 	.toast-error {
 		border-left-color: #dc2626;
+	}
+
+	.toast-success {
+		border-left-color: #10b981;
 	}
 
 	.toast-type {

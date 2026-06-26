@@ -21,7 +21,7 @@ type Handler = (event: SseEvent) => void;
 
 export interface Toast {
 	id: number;
-	type: EventType;
+	type: string;
 	message: string;
 	createdAt: number;
 }
@@ -96,6 +96,17 @@ export function on(type: EventType, handler: Handler): () => void {
 
 export function dismissToast(id: number): void {
 	events.toasts = events.toasts.filter((t) => t.id !== id);
+}
+
+export function showToast(type: string, message: string): void {
+	const toast: Toast = {
+		id: nextId++,
+		type,
+		message,
+		createdAt: Date.now(),
+	};
+	events.toasts = [toast, ...events.toasts];
+	setTimeout(() => dismissToast(toast.id), TOAST_TTL_MS);
 }
 
 function handleIncoming(event: SseEvent): void {

@@ -38,7 +38,10 @@
 </script>
 
 {#if currentPage === "loading"}
-	<div class="loading-screen">Loading...</div>
+	<div class="loading-screen">
+		<div class="spinner"></div>
+		<span>Loading...</span>
+	</div>
 {:else if currentPage === "login"}
 	<Login onLogin={handleLogin} />
 {:else}
@@ -50,6 +53,8 @@
 <style>
 	.loading-screen {
 		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 		justify-content: center;
 		align-items: center;
 		min-height: 100vh;
@@ -57,5 +62,18 @@
 			sans-serif;
 		color: #6b7280;
 		font-size: 0.9rem;
+	}
+
+	.spinner {
+		width: 28px;
+		height: 28px;
+		border: 3px solid #e5e7eb;
+		border-top-color: #2563eb;
+		border-radius: 50%;
+		animation: spin 0.7s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
 	}
 </style>
