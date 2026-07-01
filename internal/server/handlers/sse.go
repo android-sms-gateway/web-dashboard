@@ -61,7 +61,7 @@ func (h *SSEHandler) stream(c *fiber.Ctx) error {
 		zap.Int("active", h.hub.Len()),
 	)
 
-	defer func() {
+	if streamErr := conn.Stream(c, func() {
 		h.hub.Remove(id, login)
 		h.webhooksSvc.OnDisconnect(login, password)
 		h.logger.Info("sse client disconnected",
@@ -69,9 +69,7 @@ func (h *SSEHandler) stream(c *fiber.Ctx) error {
 			zap.String("user", login),
 			zap.Int("active", h.hub.Len()),
 		)
-	}()
-
-	if streamErr := conn.Stream(c); streamErr != nil {
+	}); streamErr != nil {
 		return fmt.Errorf("failed to stream sse: %w", streamErr)
 	}
 

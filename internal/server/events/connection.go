@@ -50,14 +50,17 @@ func (c *Connection) Done() <-chan struct{} {
 	return c.done
 }
 
-func (c *Connection) Stream(ctx *fiber.Ctx) error {
+func (c *Connection) Stream(ctx *fiber.Ctx, onDone func()) error {
 	ctx.Set("Content-Type", "text/event-stream")
 	ctx.Set("Cache-Control", "no-cache")
 	ctx.Set("Connection", "keep-alive")
-	ctx.Set("X-Accel-Buffering", "no")
 
-	ctx.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+	ctx.Status(fiber.StatusOK).Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		defer c.Close()
 		c.writeLoop(w)
+		if onDone != nil {
+			onDone()
+		}
 	})
 	return nil
 }
