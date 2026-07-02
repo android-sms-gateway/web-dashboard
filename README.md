@@ -13,7 +13,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/android-sms-gateway/web-dashboard">
-    <img src="https://raw.githubusercontent.com/android-sms-gateway/brand/main/logo.svg" alt="Logo" width="120" height="120">
+    <img src="https://raw.githubusercontent.com/android-sms-gateway/brand/master/logo.png" alt="Logo" width="120" height="120">
   </a>
 
 <h3 align="center">SMSGate Web Dashboard</h3>
