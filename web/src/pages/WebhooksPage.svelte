@@ -168,7 +168,11 @@
 		{#if loading}
 			<LoadingSkeleton variant="table" rows={5} />
 		{:else if loadError}
-			<ErrorBanner message={loadError} onRetry={load} onDismiss={() => loadError = ""} />
+			<ErrorBanner
+				message={loadError}
+				onRetry={load}
+				onDismiss={() => (loadError = "")}
+			/>
 		{:else if webhooks.length === 0}
 			<EmptyState
 				icon="🔗"
@@ -195,16 +199,21 @@
 						{#each webhooks as w}
 							<tr>
 								<td
-									><span class="badge badge-blue">{eventLabel(w.event)}</span></td
+									><span class="badge badge-blue"
+										>{eventLabel(w.event)}</span
+									></td
 								>
 								<td class="url">{w.url}</td>
 								<td class="mono"
-									><DeviceLabel deviceId={w.deviceId} emptyLabel="(all)" /></td
+									><DeviceLabel
+										deviceId={w.deviceId}
+										emptyLabel="(all)"
+									/></td
 								>
 								<td>
 									<button
 										class="btn-danger-small"
-										onclick={() => confirmDelete = w.id}
+										onclick={() => (confirmDelete = w.id)}
 										disabled={deletingId === w.id}
 									>
 										{deletingId === w.id ? "..." : "Delete"}
@@ -225,7 +234,7 @@
 	message="Are you sure you want to delete this webhook?"
 	confirmLabel="Delete"
 	onConfirm={handleDelete}
-	onCancel={() => confirmDelete = null}
+	onCancel={() => (confirmDelete = null)}
 />
 
 <style>
