@@ -1,10 +1,20 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import '../app.css';
+	import { connect, disconnect } from '$lib/events.svelte';
+	import { Toaster } from 'svelte-sonner';
 
 	let { children }: { children: import('svelte').Snippet } = $props();
 
 	let sidebarOpen = $state(false);
+
+	$effect(() => {
+		if ($page.data.user) {
+			connect();
+			return () => disconnect();
+		}
+	});
+
 
 	const navItems = [
 		{ href: '/', label: 'Dashboard', icon: 'LayoutDashboard' },
@@ -90,7 +100,10 @@
 									<circle cx="16" cy="21" r="1" />
 									<path d="M10 17V7a2 2 0 0 1 2-2h4" />
 									<path d="M6 17V4a2 2 0 0 1 2-2h8l4 4v11" />
-								{/if}
+{/if}
+
+<Toaster />
+
 							</svg>
 						</span>
 						{item.label}
