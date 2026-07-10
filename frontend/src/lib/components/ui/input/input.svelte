@@ -8,7 +8,7 @@
 
 	let {
 		class: className,
-		value = $bindable(''),
+		value = $bindable(),
 		...rest
 	}: Props & import('svelte').HTMLInputAttributes = $props();
 </script>
