@@ -282,5 +282,5 @@ go.work*
 coverage.*
 benchmark.*
 
-# Svelte build output (regenerated via make build-web)
+# Frontend build output (regenerated via make build-web)
 internal/web/static/

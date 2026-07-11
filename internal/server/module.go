@@ -71,7 +71,7 @@ func Module() fx.Option {
 							Browse:             false,
 							Index:              "index.html",
 							MaxAge:             int(time.Hour / time.Second),
-							NotFoundFile:       "",
+							NotFoundFile:       "index.html",
 							ContentTypeCharset: "",
 						},
 					))
