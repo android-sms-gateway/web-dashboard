@@ -2,11 +2,25 @@
 	import { page } from '$app/stores';
 	import '../app.css';
 	import { connect, disconnect } from '$lib/events.svelte';
+	import { theme, resolvedTheme, load as loadTheme, toggle as toggleTheme } from '$lib/theme.svelte';
 	import { Toaster } from 'svelte-sonner';
 
 	let { children }: { children: import('svelte').Snippet } = $props();
 
 	let sidebarOpen = $state(false);
+
+	$effect(() => {
+		loadTheme();
+	});
+
+	$effect(() => {
+		const root = document.documentElement;
+		if (resolvedTheme() === 'dark') {
+			root.classList.add('dark');
+		} else {
+			root.classList.remove('dark');
+		}
+	});
 
 	$effect(() => {
 		if ($page.data.user) {
@@ -109,28 +123,87 @@
 				{/each}
 			</nav>
 
-			<div class="absolute bottom-0 left-0 right-0 border-t p-2">
-				<a
-					href="/logout"
-					class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
+		<div class="absolute bottom-0 left-0 right-0 border-t p-2">
+			<button
+				onclick={toggleTheme}
+				class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
+				aria-label="Toggle theme"
+			>
+				<span class="h-4 w-4">
+					{#if theme() === 'light'}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="h-4 w-4"
+						>
+							<circle cx="12" cy="12" r="4" />
+							<path d="M12 2v2" />
+							<path d="M12 20v2" />
+							<path d="m4.93 4.93 1.41 1.41" />
+							<path d="m17.66 17.66 1.41 1.41" />
+							<path d="M2 12h2" />
+							<path d="M20 12h2" />
+							<path d="m6.34 17.66-1.41 1.41" />
+							<path d="m19.07 4.93-1.41 1.41" />
+						</svg>
+					{:else if theme() === 'dark'}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="h-4 w-4"
+						>
+							<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+						</svg>
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="h-4 w-4"
+						>
+							<rect width="20" height="14" x="2" y="3" rx="2" />
+							<line x1="8" x2="16" y1="21" y2="21" />
+							<line x1="12" x2="12" y1="17" y2="21" />
+						</svg>
+					{/if}
+				</span>
+				{theme() === 'light' ? 'Light' : theme() === 'dark' ? 'Dark' : 'System'}
+			</button>
+			<a
+				href="/logout"
+				class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="h-4 w-4"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="h-4 w-4"
-					>
-						<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-						<polyline points="16 17 21 12 16 7" />
-						<line x1="21" x2="9" y1="12" y2="12" />
-					</svg>
-					Logout
-				</a>
-			</div>
+					<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+					<polyline points="16 17 21 12 16 7" />
+					<line x1="21" x2="9" y1="12" y2="12" />
+				</svg>
+				Logout
+			</a>
+		</div>
 		</aside>
 
 		<main class="flex-1 overflow-auto p-4 lg:p-6">
