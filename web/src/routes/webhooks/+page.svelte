@@ -1,82 +1,106 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { listWebhooks, createWebhook, deleteWebhook } from '$lib/api';
-	import { loadDevices, dc } from '$lib/device-cache.svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-	import { Table, Thead, Tbody, Tr, Th, Td } from '$lib/components/ui/table/index.js';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert/index.js';
-	import Dialog from '$lib/components/ui/dialog/dialog.svelte';
-	import { toast } from 'svelte-sonner';
-	import type { Webhook } from '$lib/types';
+	import { onMount } from "svelte";
+	import { listWebhooks, createWebhook, deleteWebhook } from "$lib/api";
+	import { loadDevices, dc } from "$lib/device-cache.svelte";
+	import { Button } from "$lib/components/ui/button/index.js";
+	import { Input } from "$lib/components/ui/input/index.js";
+	import { Label } from "$lib/components/ui/label/index.js";
+	import { Badge } from "$lib/components/ui/badge/index.js";
+	import { Skeleton } from "$lib/components/ui/skeleton/index.js";
+	import {
+		Table,
+		Thead,
+		Tbody,
+		Tr,
+		Th,
+		Td,
+	} from "$lib/components/ui/table/index.js";
+	import {
+		Card,
+		CardContent,
+		CardHeader,
+		CardTitle,
+	} from "$lib/components/ui/card/index.js";
+	import { Alert, AlertDescription } from "$lib/components/ui/alert/index.js";
+	import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+	import { toast } from "svelte-sonner";
+	import type { Webhook } from "$lib/types";
 
-	type View = 'list' | 'create';
-	let view = $state<View>('list');
+	type View = "list" | "create";
+	let view = $state<View>("list");
 	let webhooks = $state<Webhook[]>([]);
 	let loading = $state(true);
-	let error = $state('');
+	let error = $state("");
 
-	let eventInput = $state('sms:received');
-	let urlInput = $state('');
-	let deviceIdInput = $state('');
+	let eventInput = $state("sms:received");
+	let urlInput = $state("");
+	let deviceIdInput = $state("");
 	let saving = $state(false);
-	let formError = $state('');
+	let formError = $state("");
 
 	const events = [
-		{ value: 'sms:received', label: 'SMS Received' },
-		{ value: 'sms:data-received', label: 'Data SMS Received' },
-		{ value: 'sms:sent', label: 'SMS Sent' },
-		{ value: 'sms:delivered', label: 'SMS Delivered' },
-		{ value: 'sms:failed', label: 'SMS Failed' },
-		{ value: 'system:ping', label: 'System Ping' },
-		{ value: 'mms:received', label: 'MMS Received' },
-		{ value: 'mms:downloaded', label: 'MMS Downloaded' },
+		{ value: "sms:received", label: "SMS Received" },
+		{ value: "sms:data-received", label: "Data SMS Received" },
+		{ value: "sms:sent", label: "SMS Sent" },
+		{ value: "sms:delivered", label: "SMS Delivered" },
+		{ value: "sms:failed", label: "SMS Failed" },
+		{ value: "system:ping", label: "System Ping" },
+		{ value: "mms:received", label: "MMS Received" },
+		{ value: "mms:downloaded", label: "MMS Downloaded" },
+		{ value: "sms:batch:received", label: "SMS Batch Received" },
+		{ value: "sms:batch:data-received", label: "Data SMS Batch Received" },
+		{ value: "mms:batch:received", label: "MMS Batch Received" },
+		{ value: "mms:batch:downloaded", label: "MMS Batch Downloaded" },
 	];
 
-	onMount(() => { load(); loadDevices(); });
+	onMount(() => {
+		load();
+		loadDevices();
+	});
 
 	async function load() {
 		loading = true;
-		error = '';
+		error = "";
 		try {
 			webhooks = await listWebhooks();
 		} catch {
-			error = 'Failed to load webhooks';
+			error = "Failed to load webhooks";
 		} finally {
 			loading = false;
 		}
 	}
 
 	function openCreate() {
-		view = 'create';
-		eventInput = 'sms:received';
-		urlInput = '';
-		deviceIdInput = '';
-		formError = '';
+		view = "create";
+		eventInput = "sms:received";
+		urlInput = "";
+		deviceIdInput = "";
+		formError = "";
 	}
 
 	function backToList() {
-		view = 'list';
+		view = "list";
 		load();
 	}
 
 	async function handleCreate() {
-		formError = '';
-		if (!urlInput.trim()) { formError = 'URL is required'; return; }
+		formError = "";
+		if (!urlInput.trim()) {
+			formError = "URL is required";
+			return;
+		}
 		saving = true;
 		try {
 			await createWebhook({
 				url: urlInput.trim(),
 				event: eventInput,
-				...(deviceIdInput.trim() ? { deviceId: deviceIdInput.trim() } : {}),
+				...(deviceIdInput.trim()
+					? { deviceId: deviceIdInput.trim() }
+					: {}),
 			});
 			backToList();
 		} catch {
-			formError = 'Failed to create webhook';
+			formError = "Failed to create webhook";
 		} finally {
 			saving = false;
 		}
@@ -94,7 +118,7 @@
 			await deleteWebhook(id);
 			webhooks = webhooks.filter((w) => w.id !== id);
 		} catch {
-			toast.error('Failed to delete webhook');
+			toast.error("Failed to delete webhook");
 		} finally {
 			deletingId = null;
 		}
@@ -105,13 +129,13 @@
 	}
 
 	function deviceName(id: string | undefined): string {
-		if (!id) return '(all)';
+		if (!id) return "(all)";
 		return dc.devices.find((d) => d.id === id)?.name ?? id;
 	}
 </script>
 
 <div class="space-y-4">
-	{#if view === 'create'}
+	{#if view === "create"}
 		<div class="flex items-center gap-3">
 			<Button variant="ghost" onclick={backToList}>&larr; Back</Button>
 			<h1 class="text-2xl font-bold tracking-tight">Add Webhook</h1>
@@ -122,7 +146,13 @@
 				<CardTitle>New Webhook</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<form onsubmit={(e) => { e.preventDefault(); handleCreate(); }} class="space-y-4">
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleCreate();
+					}}
+					class="space-y-4"
+				>
 					{#if formError}
 						<Alert variant="destructive">
 							<AlertDescription>{formError}</AlertDescription>
@@ -145,7 +175,13 @@
 
 					<div class="space-y-2">
 						<Label for="url">URL</Label>
-						<Input id="url" type="url" bind:value={urlInput} placeholder="https://example.com/webhook" disabled={saving} />
+						<Input
+							id="url"
+							type="url"
+							bind:value={urlInput}
+							placeholder="https://example.com/webhook"
+							disabled={saving}
+						/>
 					</div>
 
 					<div class="space-y-2">
@@ -168,7 +204,7 @@
 					</div>
 
 					<Button type="submit" class="w-full" disabled={saving}>
-						{saving ? 'Creating...' : 'Create Webhook'}
+						{saving ? "Creating..." : "Create Webhook"}
 					</Button>
 				</form>
 			</CardContent>
@@ -188,16 +224,22 @@
 		{:else if error}
 			<div class="rounded-lg border p-6 text-center">
 				<p class="text-destructive">{error}</p>
-				<Button variant="outline" class="mt-2" onclick={load}>Retry</Button>
+				<Button variant="outline" class="mt-2" onclick={load}
+					>Retry</Button
+				>
 			</div>
 		{:else if webhooks.length === 0}
 			<div class="rounded-lg border p-12 text-center">
 				<p class="text-lg font-medium">No webhooks configured</p>
-				<p class="mt-1 text-sm text-muted-foreground">Create a webhook to receive real-time SMS events.</p>
+				<p class="mt-1 text-sm text-muted-foreground">
+					Create a webhook to receive real-time SMS events.
+				</p>
 				<Button class="mt-4" onclick={openCreate}>Add Webhook</Button>
 			</div>
 		{:else}
-			<p class="text-sm text-muted-foreground">{webhooks.length} webhook{webhooks.length !== 1 ? 's' : ''}</p>
+			<p class="text-sm text-muted-foreground">
+				{webhooks.length} webhook{webhooks.length !== 1 ? "s" : ""}
+			</p>
 
 			<Table>
 				<Thead>
@@ -211,9 +253,15 @@
 				<Tbody>
 					{#each webhooks as w}
 						<Tr>
-							<Td><Badge variant="secondary">{eventLabel(w.event)}</Badge></Td>
+							<Td
+								><Badge variant="secondary"
+									>{eventLabel(w.event)}</Badge
+								></Td
+							>
 							<Td class="max-w-[400px] truncate">{w.url}</Td>
-							<Td class="font-mono text-xs text-muted-foreground">{deviceName(w.deviceId)}</Td>
+							<Td class="font-mono text-xs text-muted-foreground"
+								>{deviceName(w.deviceId)}</Td
+							>
 							<Td>
 								<Button
 									variant="destructive"
@@ -221,7 +269,7 @@
 									onclick={() => (confirmDelete = w.id)}
 									disabled={deletingId === w.id}
 								>
-									{deletingId === w.id ? '...' : 'Delete'}
+									{deletingId === w.id ? "..." : "Delete"}
 								</Button>
 							</Td>
 						</Tr>
