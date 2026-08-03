@@ -414,7 +414,54 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.statsResponse"
+                            "$ref": "#/definitions/dashboard.Stats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/trends": {
+            "get": {
+                "description": "Returns per-day message volume and device activity for the last 7, 14, or 30 days.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Dashboard trends",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 7,
+                        "description": "Number of days (7, 14, or 30)",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dashboard.Trends"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
                     },
                     "401": {
@@ -629,6 +676,77 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dashboard.DayActivity": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
+        "dashboard.DayVolume": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "sent": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Stats": {
+            "type": "object",
+            "properties": {
+                "devicesActive": {
+                    "type": "integer"
+                },
+                "devicesOnline": {
+                    "type": "integer"
+                },
+                "devicesTotal": {
+                    "type": "integer"
+                },
+                "messagesFailed": {
+                    "type": "integer"
+                },
+                "messagesPending": {
+                    "type": "integer"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dashboard.Trends": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "deviceActivity": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.DayActivity"
+                    }
+                },
+                "messageVolume": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dashboard.DayVolume"
+                    }
+                }
+            }
+        },
         "fiberfx.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -811,29 +929,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 65535,
                     "minLength": 1
-                }
-            }
-        },
-        "handlers.statsResponse": {
-            "type": "object",
-            "properties": {
-                "devicesActive": {
-                    "type": "integer"
-                },
-                "devicesOnline": {
-                    "type": "integer"
-                },
-                "devicesTotal": {
-                    "type": "integer"
-                },
-                "messagesFailed": {
-                    "type": "integer"
-                },
-                "messagesPending": {
-                    "type": "integer"
-                },
-                "messagesSent": {
-                    "type": "integer"
                 }
             }
         },

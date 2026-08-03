@@ -7,6 +7,24 @@ export interface Stats {
 	devicesTotal: number;
 }
 
+export interface TrendsResponse {
+	days: number;
+	messageVolume: DayVolume[];
+	deviceActivity: DayActivity[];
+}
+
+export interface DayVolume {
+	date: string;
+	sent: number;
+	pending: number;
+	failed: number;
+}
+
+export interface DayActivity {
+	date: string;
+	active: number;
+}
+
 export interface Me {
 	login: string;
 }
@@ -147,10 +165,7 @@ export interface MessageStateChangedPayload {
 	state: string;
 }
 
-export interface DeviceStatusChangedPayload {
-	deviceId: string;
-	isOnline: boolean;
-}
+export type DeviceStatusChangedPayload = Record<string, never>;
 
 export type SseEvent =
 	| { type: 'message.received'; payload: MessageReceivedPayload }

@@ -29,10 +29,15 @@ type webhooksConfig struct {
 	URL string `koanf:"url"`
 }
 
+type cacheConfig struct {
+	URL string `koanf:"url"`
+}
+
 type Config struct {
 	HTTP     http           `koanf:"http"`
 	Gateway  gatewayConfig  `koanf:"gateway"`
 	Webhooks webhooksConfig `koanf:"webhooks"`
+	Cache    cacheConfig    `koanf:"cache"`
 }
 
 func Default() Config {
@@ -52,6 +57,9 @@ func Default() Config {
 		},
 		Webhooks: webhooksConfig{
 			URL: "http://localhost:3000/api/webhooks/callback",
+		},
+		Cache: cacheConfig{
+			URL: "memory://",
 		},
 	}
 }

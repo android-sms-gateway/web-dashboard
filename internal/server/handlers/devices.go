@@ -3,6 +3,7 @@ package handlers
 import (
 	"time"
 
+	"github.com/android-sms-gateway/web-dashboard/internal/dashboard"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/client"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/session"
@@ -76,7 +77,7 @@ func (h *DevicesHandler) list(c *fiber.Ctx) error {
 			ID:        d.ID,
 			Name:      d.Name,
 			LastSeen:  d.LastSeen,
-			IsOnline:  d.DeletedAt == nil,
+			IsOnline:  d.DeletedAt == nil && time.Since(d.LastSeen) < dashboard.DeviceOnlineIn,
 			CreatedAt: d.CreatedAt,
 		}
 	}
