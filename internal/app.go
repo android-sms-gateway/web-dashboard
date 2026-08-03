@@ -3,9 +3,12 @@ package internal
 import (
 	"context"
 
+	"github.com/android-sms-gateway/web-dashboard/internal/cache"
 	"github.com/android-sms-gateway/web-dashboard/internal/config"
+	"github.com/android-sms-gateway/web-dashboard/internal/dashboard"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server"
+	"github.com/go-core-fx/cachefx"
 	"github.com/go-core-fx/fiberfx"
 	"github.com/go-core-fx/healthfx"
 	"github.com/go-core-fx/logger"
@@ -21,7 +24,7 @@ func Run(version healthfx.Version) {
 		logger.WithFxDefaultLogger(),
 		// badgerfx.Module(),
 		// bunfx.Module(),
-		// cachefx.Module(),
+		cachefx.Module(),
 		fiberfx.Module(),
 		// gocqlfx.Module(),
 		// gocqlxfx.Module(),
@@ -39,9 +42,11 @@ func Run(version healthfx.Version) {
 		// APP MODULES
 		config.Module(),
 		server.Module(),
+		cache.Module(),
 		//
 		// BUSINESS MODULES
 		gateway.Module(),
+		dashboard.Module(),
 
 		fx.Supply(version),
 

@@ -12,6 +12,7 @@ import type {
 	MessageDetail,
 	SendMessageRequest,
 	Stats,
+	TrendsResponse,
 	Webhook,
 } from './types';
 
@@ -59,6 +60,10 @@ export function me() {
 
 export function stats() {
 	return request<Stats>('/stats');
+}
+
+export function trends(days: number) {
+	return request<TrendsResponse>(`/stats/trends?days=${days}`);
 }
 
 export function listMessages(params?: ListMessagesParams) {

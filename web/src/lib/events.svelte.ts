@@ -17,9 +17,7 @@ function isValidSseEvent(data: unknown): data is SseEvent {
 }
 
 type EventType = SseEvent['type'];
-type Handler = (event: SseEvent) => void;
-
-export const events = $state({
+type Handler = (event: SseEvent) => void;export const events = $state({
 	status: 'disconnected' as 'disconnected' | 'connecting' | 'connected',
 	error: null as string | null,
 });
@@ -71,17 +69,23 @@ export function disconnect(): void {
 	handlers.clear();
 }
 
-export function on(type: EventType, handler: Handler): () => void {
+export function on<K extends EventType>(
+	type: K,
+	handler: (event: Extract<SseEvent, { type: K }>) => void,
+): () => void {
 	let set = handlers.get(type);
 	if (!set) {
 		set = new Set();
 		handlers.set(type, set);
 	}
-	set.add(handler);
+	set.add(handler as Handler);
 
 	return () => {
-		set!.delete(handler);
-		if (set!.size === 0) handlers.delete(type);
+		const current = handlers.get(type);
+		if (!current) return;
+
+		current.delete(handler as Handler);
+		if (current.size === 0) handlers.delete(type);
 	};
 }
 

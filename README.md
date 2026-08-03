@@ -58,7 +58,7 @@ The dashboard acts as a proxy to the [SMSGate 3rd Party API](https://api.sms-gat
 
 ### Features
 
-- **Dashboard** — aggregated statistics: devices online/active/total, messages sent/pending/failed
+- **Dashboard** — aggregated statistics: devices online/active/total, messages sent/pending/failed; message volume and device activity trend charts (7/14/30-day ranges); live activity feed seeded from message history
 - **Message Management** — paginated message list with filtering (by state, device, date range); send new SMS; view delivery status and timeline
 - **Device Management** — view registered devices with online/offline status, remove devices
 - **Webhook Management** — create, list, and delete webhooks for SMS events (received, sent, delivered, failed, MMS, data SMS, system ping)
@@ -157,6 +157,7 @@ The application is configured via environment variables or an optional YAML file
 | `HTTP__LISTEN`         | `127.0.0.1:3000`                              | HTTP server bind address                 |
 | `GATEWAY__URL`         | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint           |
 | `GATEWAY__WEBHOOK_URL` | `http://localhost:3000/api/webhooks/callback` | Public callback URL for webhook events   |
+| `CACHE__URL`           | `memory://`                                   | Trends cache backend (`memory://` or `redis://`) |
 | `CONFIG_PATH`          | —                                             | Path to optional YAML configuration file |
 
 Example:
@@ -223,6 +224,7 @@ All endpoints are prefixed with `/api/v1`.
 | POST   | `/auth/logout`                   | No   | Destroy session                               |
 | GET    | `/auth/me`                       | Yes  | Get authenticated username                    |
 | GET    | `/stats`                         | Yes  | Aggregated dashboard statistics               |
+| GET    | `/stats/trends`                  | Yes  | Per-day message volume and device activity (7/14/30 days) |
 | GET    | `/messages`                      | Yes  | List messages (paginated, filterable)         |
 | POST   | `/messages`                      | Yes  | Send a new SMS                                |
 | GET    | `/messages/:id`                  | Yes  | Get message details with delivery timeline    |
