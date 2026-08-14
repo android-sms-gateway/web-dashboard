@@ -108,6 +108,7 @@ func countMessagesRange(
 			DeviceID:       nil,
 			Offset:         nil,
 			IncludeContent: nil,
+			Sort:           nil,
 		})
 		if err != nil {
 			recordErr(err)
@@ -216,6 +217,7 @@ func sweepDay(
 			Limit:          &limit,
 			Offset:         &offset,
 			IncludeContent: nil,
+			Sort:           nil,
 		})
 		if listErr != nil {
 			return daySweepStats{}, fmt.Errorf("failed to list messages: %w", listErr)
@@ -233,7 +235,7 @@ func sweepDay(
 				failed++
 			case smsgateway.ProcessingStateProcessed,
 				smsgateway.ProcessingStateSent,
-				smsgateway.ProcessingStateDelivered:
+				smsgateway.ProcessingStateDelivered, smsgateway.ProcessingStateCancelled, smsgateway.ProcessingStateCancelling:
 			}
 		}
 

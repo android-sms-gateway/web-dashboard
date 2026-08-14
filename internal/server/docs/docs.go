@@ -1016,6 +1016,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "receiver": {
+                    "description": "Receiver contains settings related to SMS message reception.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.SettingsReceiver"
+                        }
+                    ]
+                },
                 "webhooks": {
                     "description": "Webhooks contains settings related to webhook functionality.",
                     "allOf": [
@@ -1043,12 +1051,14 @@ const docTemplate = `{
             "enum": [
                 "Disabled",
                 "PerMinute",
+                "Per30Minutes",
                 "PerHour",
                 "PerDay"
             ],
             "x-enum-varnames": [
                 "Disabled",
                 "PerMinute",
+                "Per30Minutes",
                 "PerHour",
                 "PerDay"
             ]
@@ -1149,12 +1159,16 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "Pending",
+                "Cancelling",
+                "Cancelled",
                 "Processed",
                 "Sent",
                 "Delivered",
                 "Failed"
             ],
             "x-enum-comments": {
+                "ProcessingStateCancelled": "Cancelled",
+                "ProcessingStateCancelling": "Cancelling (cancellation requested)",
                 "ProcessingStateDelivered": "Delivered",
                 "ProcessingStateFailed": "Failed",
                 "ProcessingStatePending": "Pending",
@@ -1163,6 +1177,8 @@ const docTemplate = `{
             },
             "x-enum-descriptions": [
                 "Pending",
+                "Cancelling (cancellation requested)",
+                "Cancelled",
                 "Processed (received by device)",
                 "Sent",
                 "Delivered",
@@ -1170,6 +1186,8 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "ProcessingStatePending",
+                "ProcessingStateCancelling",
+                "ProcessingStateCancelled",
                 "ProcessingStateProcessed",
                 "ProcessingStateSent",
                 "ProcessingStateDelivered",
@@ -1250,10 +1268,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "limit_period": {
-                    "description": "LimitPeriod defines the period for message sending limits.\nValid values are \"Disabled\", \"PerMinute\", \"PerHour\", or \"PerDay\".",
+                    "description": "LimitPeriod defines the period for message sending limits.\nValid values are \"Disabled\", \"PerMinute\", \"Per30Minutes\", \"PerHour\", or \"PerDay\".",
                     "enum": [
                         "Disabled",
                         "PerMinute",
+                        "Per30Minutes",
                         "PerHour",
                         "PerDay"
                     ],
@@ -1307,6 +1326,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/smsgateway.SimSelectionMode"
                         }
                     ]
+                },
+                "work_hours_enabled": {
+                    "description": "WorkHoursEnabled enables restricting message delivery to a configurable time window.",
+                    "type": "boolean"
+                },
+                "work_hours_end": {
+                    "description": "WorkHoursEnd is the end of the working hours window in HH:mm format (24-hour).",
+                    "type": "string"
+                },
+                "work_hours_start": {
+                    "description": "WorkHoursStart is the start of the working hours window in HH:mm format (24-hour).",
+                    "type": "string"
                 }
             }
         },
@@ -1317,6 +1348,15 @@ const docTemplate = `{
                     "description": "IntervalSeconds is the interval between ping requests (in seconds).\nMust be at least 1 when provided.",
                     "type": "integer",
                     "minimum": 1
+                }
+            }
+        },
+        "smsgateway.SettingsReceiver": {
+            "type": "object",
+            "properties": {
+                "content_provider_enabled": {
+                    "description": "ContentProviderEnabled enables monitoring the SMS content provider as a fallback for\ncarriers that intercept the SMS_RECEIVED broadcast.",
+                    "type": "boolean"
                 }
             }
         },
@@ -1435,13 +1475,17 @@ const docTemplate = `{
                 "sms:sent",
                 "sms:delivered",
                 "sms:failed",
+                "sms:cancelled",
                 "system:ping",
                 "mms:received",
-                "mms:downloaded"
+                "mms:downloaded",
+                "app:started"
             ],
             "x-enum-comments": {
+                "WebhookEventAppStarted": "Triggered when the application is started.",
                 "WebhookEventMmsDownloaded": "Triggered when an MMS is downloaded.",
                 "WebhookEventMmsReceived": "Triggered when an MMS is received.",
+                "WebhookEventSmsCancelled": "Triggered when an SMS is cancelled.",
                 "WebhookEventSmsDataReceived": "Triggered when a data SMS is received.",
                 "WebhookEventSmsDelivered": "Triggered when an SMS is delivered.",
                 "WebhookEventSmsFailed": "Triggered when an SMS processing fails.",
@@ -1455,9 +1499,11 @@ const docTemplate = `{
                 "Triggered when an SMS is sent.",
                 "Triggered when an SMS is delivered.",
                 "Triggered when an SMS processing fails.",
+                "Triggered when an SMS is cancelled.",
                 "Triggered when the device pings the server.",
                 "Triggered when an MMS is received.",
-                "Triggered when an MMS is downloaded."
+                "Triggered when an MMS is downloaded.",
+                "Triggered when the application is started."
             ],
             "x-enum-varnames": [
                 "WebhookEventSmsReceived",
@@ -1465,9 +1511,11 @@ const docTemplate = `{
                 "WebhookEventSmsSent",
                 "WebhookEventSmsDelivered",
                 "WebhookEventSmsFailed",
+                "WebhookEventSmsCancelled",
                 "WebhookEventSystemPing",
                 "WebhookEventMmsReceived",
-                "WebhookEventMmsDownloaded"
+                "WebhookEventMmsDownloaded",
+                "WebhookEventAppStarted"
             ]
         }
     }
