@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
+#### Devices
+
+- **End-to-end encryption status** — the devices table now shows whether a device uses end-to-end encryption, with the key rotation version when available
+  - New optional `publicKey` and `keyVersion` fields in the devices API response; both are omitted for devices without end-to-end encryption configured
+
+## [0.6.0] - 2026-10-14
+
+### New Features
+
 #### Messages
 
-- **SMS parts counter** — the compose editor now shows a live character count, concatenated SMS part count, and encoding (GSM-7 or UCS-2) as you type
 - **Outgoing MMS support** — send multimedia messages via the API and web dashboard
   - New `mmsMessage` field in the send message API (use instead of `text`)
   - Exactly one of `text` or `mmsMessage` is required
@@ -19,9 +27,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Attachment upload and preview in the compose page
   - Attachment display on the message detail page
 
+## [0.5.2] - 2026-09-26
+
+### New Features
+
+#### Messages
+
+- **SMS parts counter** — the compose editor now shows a live character count, concatenated SMS part count, and encoding (GSM-7 or UCS-2) as you type
+
 ### Documentation
 
-- Updated README with screenshots for all dashboard pages
+- Added a changelog, refreshed the README with screenshots for all dashboard pages, and updated `.env.example`
 
 ## [0.5.1] - 2026-08-22
 
