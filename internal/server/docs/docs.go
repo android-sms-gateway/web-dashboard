@@ -807,10 +807,16 @@ const docTemplate = `{
                 "isOnline": {
                     "type": "boolean"
                 },
+                "keyVersion": {
+                    "type": "integer"
+                },
                 "lastSeen": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "publicKey": {
                     "type": "string"
                 }
             }
@@ -1209,7 +1215,7 @@ const docTemplate = `{
                 "phoneNumber": {
                     "description": "Phone number or first 16 symbols of SHA256 hash",
                     "type": "string",
-                    "maxLength": 128,
+                    "maxLength": 512,
                     "minLength": 1,
                     "example": "79990001234"
                 },
