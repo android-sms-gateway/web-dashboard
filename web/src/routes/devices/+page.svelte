@@ -12,7 +12,6 @@
 	let devices = $state<Device[]>([]);
 	let loading = $state(true);
 	let error = $state('');
-
 	onMount(load);
 
 	async function load() {
@@ -25,6 +24,12 @@
 		} finally {
 			loading = false;
 		}
+	}
+
+	type EncryptionType = 'e2e' | 'none';
+
+	function encryptionType(d: Device): EncryptionType {
+		return d.publicKey ? 'e2e' : 'none';
 	}
 
 	let deleting = $state<string | null>(null);
@@ -87,6 +92,7 @@
 					<Th>Name</Th>
 					<Th>ID</Th>
 					<Th>Status</Th>
+					<Th>Encryption</Th>
 					<Th>Last Seen</Th>
 					<Th></Th>
 				</Tr>
@@ -103,7 +109,20 @@
 								<Badge variant="outline">Offline</Badge>
 							{/if}
 						</Td>
-						<Td class="whitespace-nowrap text-muted-foreground">{timeAgo(d.lastSeen)}</Td>
+					<Td>
+						{#if encryptionType(d) === 'e2e'}
+							<span class="inline-flex items-center gap-1.5" title="End-to-end encryption enabled">
+								<span class="inline-block h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+								<Badge variant="secondary">E2E</Badge>
+								{#if d.keyVersion != null}
+									<span class="font-mono text-xs text-muted-foreground">v{d.keyVersion}</span>
+								{/if}
+							</span>
+						{:else}
+							<Badge variant="outline">None</Badge>
+						{/if}
+					</Td>
+					<Td class="whitespace-nowrap text-muted-foreground">{timeAgo(d.lastSeen)}</Td>
 						<Td>
 							<Button
 								variant="destructive"
