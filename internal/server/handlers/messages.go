@@ -64,6 +64,7 @@ func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
 		From:           q.From,
 		To:             q.To,
 		IncludeContent: lo.ToPtr(true),
+		Sort:           lo.ToPtr(smsgateway.CreatedAtDescending),
 	}
 }
 
