@@ -52,7 +52,7 @@ export interface MessageListItem {
 	state: string;
 	recipients: RecipientState[];
 	textPreview: string;
-	createdAt: string;
+	createdAt?: string;
 }
 
 export interface MessageDetail {

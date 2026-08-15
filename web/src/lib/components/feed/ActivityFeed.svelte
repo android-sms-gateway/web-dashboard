@@ -79,14 +79,14 @@
 
 	function seedItems(list: MessageListItem[]) {
 		const seeded: FeedItem[] = list.map((m) => {
-			const ts = Date.parse(m.createdAt);
+			const parsed = m.createdAt ? Date.parse(m.createdAt) : NaN;
 			return {
 				id: m.id,
 				kind: 'state',
 				title: m.recipients.map((r) => r.phoneNumber).join(', ') || 'Unknown recipient',
 				preview: m.textPreview,
 				state: m.state,
-				ts: Number.isNaN(ts) ? Date.now() : ts,
+				ts: Number.isNaN(parsed) ? 0 : parsed,
 			};
 		});
 		seeded.sort((a, b) => b.ts - a.ts);
@@ -155,9 +155,13 @@
 					{#if item.state}
 						<Badge variant={stateBadgeVariant(item.state)}>{item.state}</Badge>
 					{/if}
-					<time class="text-xs text-muted-foreground" datetime={new Date(item.ts).toISOString()}>
-						{timeAgo(item.ts)}
-					</time>
+					{#if item.ts > 0}
+						<time class="text-xs text-muted-foreground" datetime={new Date(item.ts).toISOString()}>
+							{timeAgo(item.ts)}
+						</time>
+					{:else}
+						<span class="text-xs text-muted-foreground">—</span>
+					{/if}
 				</div>
 			</li>
 		{/each}
