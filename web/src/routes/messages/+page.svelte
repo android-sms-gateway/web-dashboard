@@ -231,9 +231,10 @@
 							</Badge>
 						</Td>
 						<Td class="whitespace-nowrap text-muted-foreground">
-							{msg.createdAt
+							{msg.createdAt &&
+							!Number.isNaN(new Date(msg.createdAt).getTime())
 								? new Date(msg.createdAt).toLocaleString()
-								: ""}
+								: "—"}
 						</Td>
 						<Td>
 							<Button

@@ -74,7 +74,7 @@ type messageListItem struct {
 	State       smsgateway.ProcessingState `json:"state"`
 	Recipients  []recipientItem            `json:"recipients"`
 	TextPreview string                     `json:"textPreview"`
-	CreatedAt   time.Time                  `json:"createdAt"`
+	CreatedAt   *time.Time                 `json:"createdAt,omitempty"`
 }
 
 type recipientItem struct {
@@ -143,9 +143,9 @@ func (h *MessagesHandler) list(c *fiber.Ctx) error {
 			}
 		}
 
-		createdAt := time.Time{}
+		var createdAt *time.Time
 		if t, ok := m.States[string(smsgateway.ProcessingStatePending)]; ok {
-			createdAt = t
+			createdAt = &t
 		}
 
 		items[i] = messageListItem{
