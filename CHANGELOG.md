@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Docker healthcheck** — the published image now probes `/health/live` every 15 seconds after a 20-second start period, so Docker and orchestrators can detect an unhealthy container
 
+### Bug Fixes
+
+- Fixed device settings not loading or saving because the UI and API used different field names — settings now load and persist correctly
+- Fixed settings errors showing only a generic message — failed loads and saves now include the API response detail
+
 ## [0.6.3] - 2026-10-27
 
 ### Maintenance
