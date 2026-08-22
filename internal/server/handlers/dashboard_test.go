@@ -61,10 +61,10 @@ func newTestApp(upstreamURL string) *fiber.App {
 	return app
 }
 
-func login(t *testing.T, app *fiber.App, login, password string) string {
+func login(t *testing.T, app *fiber.App) string {
 	t.Helper()
 
-	body := fmt.Sprintf(`{"login":%q,"password":%q}`, login, password)
+	body := fmt.Sprintf(`{"login":%q,"password":%q}`, "user", "pass")
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -92,7 +92,7 @@ func TestTrendsInvalidDays(t *testing.T) {
 	t.Parallel()
 
 	app := newTestApp(newUpstream(t).URL)
-	cookie := login(t, app, "user", "pass")
+	cookie := login(t, app)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/stats/trends?days=5", nil)
 	req.Header.Set("Cookie", "session_id="+cookie)
@@ -130,7 +130,7 @@ func TestTrendsOK(t *testing.T) {
 	t.Parallel()
 
 	app := newTestApp(newUpstream(t).URL)
-	cookie := login(t, app, "user", "pass")
+	cookie := login(t, app)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/stats/trends", nil)
 	req.Header.Set("Cookie", "session_id="+cookie)
