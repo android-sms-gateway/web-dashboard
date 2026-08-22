@@ -7,7 +7,8 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"sync": "svelte-kit sync"
+		"sync": "svelte-kit sync",
+		"test": "node --test 'src/lib/**/*.test.ts'"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.8",

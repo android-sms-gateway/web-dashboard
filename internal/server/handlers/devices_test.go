@@ -59,7 +59,7 @@ func TestListDevicesOnline(t *testing.T) {
 	]`, now, now, stale, stale, deleted, deleted, deleted)
 
 	app := newDevicesApp(t, devices)
-	cookie := login(t, app, "user", "pass")
+	cookie := login(t, app)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/devices", nil)
 	req.Header.Set("Cookie", "session_id="+cookie)

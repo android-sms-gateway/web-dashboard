@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getSettings, updateSettings } from '$lib/api';
+	import { errorMessage, getSettings, updateSettings } from '$lib/api';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -38,8 +38,8 @@
 			const data = await getSettings();
 			form = emptyForm();
 			mergeNested(form, data);
-		} catch {
-			error = 'Failed to load settings';
+		} catch (err) {
+			error = `Failed to load settings: ${errorMessage(err)}`;
 		} finally {
 			loading = false;
 		}
@@ -65,8 +65,8 @@
 			form = emptyForm();
 			mergeNested(form, result);
 			toast.success('Settings saved.');
-		} catch {
-			error = 'Failed to save settings';
+		} catch (err) {
+			error = `Failed to save settings: ${errorMessage(err)}`;
 		} finally {
 			saving = false;
 		}
