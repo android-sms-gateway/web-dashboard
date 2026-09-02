@@ -65,6 +65,7 @@ export interface MessageDetail {
 	states: Record<string, string>;
 	textMessage?: { text: string };
 	dataMessage?: { data: string; port: number };
+	mmsMessage?: MmsMessageContent;
 	hashedMessage?: { hash: string };
 }
 
@@ -76,10 +77,39 @@ export interface RecipientState {
 
 export interface SendMessageRequest {
 	phoneNumbers: string[];
-	text: string;
+	text?: string;
+	mmsMessage?: MmsMessageContent;
 	deviceId?: string;
 	simNumber?: number;
 	priority?: number;
+}
+
+export interface MmsMessageContent {
+	subject?: string;
+	text?: string;
+	attachments?: MmsAttachment[];
+}
+
+export interface MmsAttachment {
+	contentType: string;
+	name: string;
+	data: string; // base64, no data: prefix
+}
+
+export interface OutgoingAttachment {
+	contentType: string;
+	name?: string;
+	data?: string; // base64, absent for hashed/encrypted content
+}
+
+export interface AttachmentDraft {
+	file: File;
+	name: string;
+	contentType: string;
+	size: number;
+	data: string;
+	objectUrl?: string;
+	status: 'pending' | 'ready' | 'error';
 }
 
 export interface ListMessagesParams {
