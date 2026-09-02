@@ -18,6 +18,7 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
   - [📖 About](#-about)
   - [📚 Table of Contents](#-table-of-contents)
   - [⭐ Features](#-features)
+  - [📸 Screenshots](#-screenshots)
   - [📦 Prerequisites](#-prerequisites)
   - [🚀 Quickstart](#-quickstart)
     - [Configuration](#configuration)
@@ -29,13 +30,22 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
 ## ⭐ Features
 
 - Dashboard: aggregated statistics (devices online/active/total, messages sent/pending/failed), 7/14/30-day trend charts, live activity feed
-- Messages: paginated list with filters (state, device, date range), send SMS, delivery status timeline
+- Messages: paginated list with filters (state, device, date range), send SMS or MMS with attachments, optionally target a specific device, delivery status timeline
 - Devices: list with online/offline status, remove devices
 - Webhooks: create, list, and delete subscriptions for all SMS event types (received, sent, delivered, failed, MMS, data SMS, ping)
 - API tokens: generate JWT tokens with granular scope selection (15 permission levels), copy and revoke
 - Device settings: SIM selection mode, message intervals, retry policy, webhook signing key, encryption passphrase
 - Real-time: live SSE stream with toast notifications for messages, state changes, and device status
 - Observability: OpenAPI/Swagger UI at `/api/v1/docs`, Prometheus metrics at `/metrics`
+
+## 📸 Screenshots
+
+|                                             |                                             |
+| ------------------------------------------- | ------------------------------------------- |
+| ![Dashboard](docs/images/dashboard.png)     | ![Messages](docs/images/messages.png)       |
+| ![Compose SMS](docs/images/compose-sms.png) | ![Compose MMS](docs/images/compose-mms.png) |
+| ![Devices](docs/images/devices.png)         | ![Tokens](docs/images/tokens.png)           |
+| ![Settings](docs/images/settings.png)       | ![Login](docs/images/login.png)             |
 
 ## 📦 Prerequisites
 

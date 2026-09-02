@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Messages
 
 - **SMS parts counter** — the compose editor now shows a live character count, concatenated SMS part count, and encoding (GSM-7 or UCS-2) as you type
+- **Outgoing MMS support** — send multimedia messages via the API and web dashboard
+  - New `mmsMessage` field in the send message API (use instead of `text`)
+  - Exactly one of `text` or `mmsMessage` is required
+  - New `deviceId` field to target a specific device
+  - Attachment upload and preview in the compose page
+  - Attachment display on the message detail page
+
+### Documentation
+
+- Updated README with screenshots for all dashboard pages
 
 ## [0.5.1] - 2026-08-22
 

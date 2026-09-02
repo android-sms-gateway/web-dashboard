@@ -15,21 +15,47 @@
 		CardTitle,
 	} from "$lib/components/ui/card/index.js";
 	import { Alert, AlertDescription } from "$lib/components/ui/alert/index.js";
+	import {
+		Tabs,
+		TabsList,
+		TabsTrigger,
+	} from "$lib/components/ui/tabs/index.js";
+	import AttachmentUploader from "$lib/components/messages/AttachmentUploader.svelte";
+	import type { AttachmentDraft, SendMessageRequest } from "$lib/types";
 
 	let phones = $state("");
 	let text = $state("");
+	let subject = $state("");
 	let deviceId = $state("");
 	let simNumber = $state("");
+	let messageType = $state<"sms" | "mms">("sms");
+	let attachments = $state<AttachmentDraft[]>([]);
 	let sending = $state(false);
 	let error = $state("");
+	let attempted = $state(false);
 
 	let textStats = $derived(smsStats(text.trim()));
 
+	function parseSimNumber(): { error?: string; simNumber?: number } {
+		const raw = simNumber.trim();
+		if (!raw) return {};
+		const n = parseInt(raw, 10);
+		if (!Number.isFinite(n) || String(n) !== raw || n < 1 || n > 3) {
+			return { error: "SIM number must be 1, 2, or 3" };
+		}
+		return { simNumber: n };
+	}
+
 	onMount(() => loadDevices());
+
+	let readyAttachments = $derived(
+		attachments.filter((a) => a.status === "ready"),
+	);
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		error = "";
+		attempted = true;
 
 		const phoneList = phones
 			.split(/[\n,]+/)
@@ -41,29 +67,61 @@
 			return;
 		}
 
-		if (!text.trim()) {
-			error = "Message text is required";
+		if (messageType === "sms") {
+			if (!text.trim()) {
+				error = "Message text is required";
+				return;
+			}
+		} else if (!text.trim() && readyAttachments.length === 0) {
+			error = "Add message text or at least one attachment";
+			return;
+		}
+
+		const { error: simError, ...simPayload } = parseSimNumber();
+		if (simError) {
+			error = simError;
 			return;
 		}
 
 		sending = true;
 		try {
-			await sendMessage({
-				phoneNumbers: phoneList,
-				text: text.trim(),
-				...(deviceId ? { deviceId } : {}),
-				...(simNumber.trim()
-					? (() => {
-							const n = parseInt(simNumber.trim(), 10);
-							return Number.isFinite(n)
-								? { simNumber: Math.min(Math.max(n, 1), 3) }
-								: {};
-						})()
-					: {}),
-			});
+			const payload: SendMessageRequest =
+				messageType === "mms"
+					? {
+							phoneNumbers: phoneList,
+							...(deviceId ? { deviceId } : {}),
+							...simPayload,
+							mmsMessage: {
+								...(subject.trim()
+									? { subject: subject.trim() }
+									: {}),
+								...(text.trim() ? { text: text.trim() } : {}),
+								...(readyAttachments.length > 0
+									? {
+											attachments: readyAttachments.map(
+												(a) => ({
+													contentType: a.contentType,
+													name: a.name,
+													data: a.data,
+												}),
+											),
+										}
+									: {}),
+							},
+						}
+					: {
+							phoneNumbers: phoneList,
+							text: text.trim(),
+							...(deviceId ? { deviceId } : {}),
+							...simPayload,
+						};
+			await sendMessage(payload);
 			goto("/messages");
-		} catch {
-			error = "Failed to send message";
+		} catch (e) {
+			error =
+				e instanceof Error && e.message
+					? e.message
+					: "Failed to send message";
 		} finally {
 			sending = false;
 		}
@@ -104,7 +162,57 @@
 				</div>
 
 				<div class="space-y-2">
-					<Label for="text">Message Text</Label>
+					<span
+						id="message-type-label"
+						class="text-sm font-medium leading-none"
+						>Message Type</span
+					>
+					<Tabs bind:value={messageType}>
+						<TabsList
+							aria-labelledby="message-type-label"
+							class="grid w-full grid-cols-2"
+						>
+							<TabsTrigger value="sms">SMS</TabsTrigger>
+							<TabsTrigger value="mms">MMS</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				</div>
+
+				{#if messageType === "mms"}
+					<div class="space-y-2">
+						<Label for="subject"
+							>Subject <span class="text-muted-foreground"
+								>(optional)</span
+							></Label
+						>
+						<Input
+							id="subject"
+							type="text"
+							bind:value={subject}
+							placeholder="Enter subject..."
+							disabled={sending}
+						/>
+						{#if subject.length > 100}
+							<p class="text-xs text-muted-foreground">
+								{subject.length} characters
+							</p>
+						{/if}
+					</div>
+				{/if}
+
+				{#if messageType === "mms"}
+					<AttachmentUploader bind:attachments disabled={sending} />
+				{/if}
+
+				<div class="space-y-2">
+					<Label for="text">
+						Message Text
+						{#if messageType === "mms"}
+							<span class="text-muted-foreground"
+								>(optional if attachments added)</span
+							>
+						{/if}
+					</Label>
 					<Textarea
 						id="text"
 						bind:value={text}
@@ -112,16 +220,23 @@
 						placeholder="Enter your message..."
 						disabled={sending}
 					/>
-					<p class="text-right text-xs text-muted-foreground">
-						{#if textStats.parts === 0}
-							0 characters
-						{:else}
-							{textStats.chars} character{textStats.chars !== 1
-								? "s"
-								: ""} · {textStats.parts}
-							SMS part{textStats.parts !== 1 ? "s" : ""} · {textStats.encoding}
-						{/if}
-					</p>
+					{#if messageType === "mms" && attempted && !text.trim() && readyAttachments.length === 0}
+						<p class="text-sm text-destructive">
+							Add message text or at least one attachment.
+						</p>
+					{/if}
+					{#if messageType === "sms"}
+						<p class="text-right text-xs text-muted-foreground">
+							{#if textStats.parts === 0}
+								0 characters
+							{:else}
+								{textStats.chars} character{textStats.chars !== 1
+									? "s"
+									: ""} · {textStats.parts}
+								SMS part{textStats.parts !== 1 ? "s" : ""} · {textStats.encoding}
+							{/if}
+						</p>
+					{/if}
 				</div>
 
 				<div class="space-y-2">
