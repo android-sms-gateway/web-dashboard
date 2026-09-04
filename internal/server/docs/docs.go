@@ -906,6 +906,10 @@ const docTemplate = `{
                 "phoneNumbers"
             ],
             "properties": {
+                "deviceId": {
+                    "type": "string",
+                    "maxLength": 21
+                },
                 "mmsMessage": {
                     "$ref": "#/definitions/smsgateway.MmsMessage"
                 },

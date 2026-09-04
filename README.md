@@ -45,6 +45,7 @@
   - [Prerequisites](#prerequisites)
   - [Available Commands](#available-commands)
 - [API Endpoints](#api-endpoints)
+  - [UI Screenshots](#ui-screenshots)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -59,14 +60,19 @@ The dashboard acts as a proxy to the [SMSGate 3rd Party API](https://api.sms-gat
 ### Features
 
 - **Dashboard** — aggregated statistics: devices online/active/total, messages sent/pending/failed; message volume and device activity trend charts (7/14/30-day ranges); live activity feed seeded from message history
-- **Message Management** — paginated message list with filtering (by state, device, date range); send new SMS; view delivery status and timeline
+- **Message Management** — paginated message list with filtering (by state, device, date range); send SMS and MMS messages with attachments; view delivery status and timeline
+- **MMS & Attachments** — compose MMS messages with subject lines and file attachments (images, documents); drag-and-drop upload with preview and base64 encoding
 - **Device Management** — view registered devices with online/offline status, remove devices
-- **Webhook Management** — create, list, and delete webhooks for SMS events (received, sent, delivered, failed, MMS, data SMS, system ping)
+- **Webhook Management** — create, list, and delete webhooks for message events (received, sent, delivered, failed, MMS, data SMS, system ping)
 - **API Token Management** — generate JWT tokens with granular scope selection (15 permission levels); copy and revoke tokens
 - **Device Settings** — configure message intervals, SIM selection mode, processing order, ping intervals, log lifetime, webhook signing key, retry policy, gateway cloud URL, and encryption passphrase
 - **Real-time Notifications** — live SSE stream for incoming messages, state changes, and device status updates with toast notifications
 - **OpenAPI Documentation** — Swagger UI at `/api/v1/docs`
 - **Prometheus Metrics** — metrics endpoint for monitoring
+
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="Dashboard Overview" width="800">
+</p>
 
 ### Built With
 
@@ -121,6 +127,10 @@ docker run -p 3000:3000 \
 
 Images support `linux/amd64` and `linux/arm64`, are based on Alpine Linux, and run as a non-root user.
 
+<p align="center">
+  <img src="docs/images/login.png" alt="Login Page" width="600">
+</p>
+
 #### GitHub Releases
 
 Pre-built binaries for Linux, macOS, and Windows are available on the [GitHub Releases page](https://github.com/android-sms-gateway/web-dashboard/releases).
@@ -152,13 +162,13 @@ tar xzf web-dashboard_linux_amd64.tar.gz
 
 The application is configured via environment variables or an optional YAML file:
 
-| Variable               | Default                                       | Description                              |
-| ---------------------- | --------------------------------------------- | ---------------------------------------- |
-| `HTTP__LISTEN`         | `127.0.0.1:3000`                              | HTTP server bind address                 |
-| `GATEWAY__URL`         | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint           |
-| `GATEWAY__WEBHOOK_URL` | `http://localhost:3000/api/webhooks/callback` | Public callback URL for webhook events   |
+| Variable               | Default                                       | Description                                      |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------ |
+| `HTTP__LISTEN`         | `127.0.0.1:3000`                              | HTTP server bind address                         |
+| `GATEWAY__URL`         | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                   |
+| `GATEWAY__WEBHOOK_URL` | `http://localhost:3000/api/webhooks/callback` | Public callback URL for webhook events           |
 | `CACHE__URL`           | `memory://`                                   | Trends cache backend (`memory://` or `redis://`) |
-| `CONFIG_PATH`          | —                                             | Path to optional YAML configuration file |
+| `CONFIG_PATH`          | —                                             | Path to optional YAML configuration file         |
 
 Example:
 ```sh
@@ -218,29 +228,63 @@ This runs the Go server via `air` (hot reload on `.go` changes) and automaticall
 
 All endpoints are prefixed with `/api/v1`.
 
-| Method | Route                            | Auth | Description                                   |
-| ------ | -------------------------------- | ---- | --------------------------------------------- |
-| POST   | `/auth/login`                    | No   | Authenticate with SMSGate credentials         |
-| POST   | `/auth/logout`                   | No   | Destroy session                               |
-| GET    | `/auth/me`                       | Yes  | Get authenticated username                    |
-| GET    | `/stats`                         | Yes  | Aggregated dashboard statistics               |
+| Method | Route                            | Auth | Description                                               |
+| ------ | -------------------------------- | ---- | --------------------------------------------------------- |
+| POST   | `/auth/login`                    | No   | Authenticate with SMSGate credentials                     |
+| POST   | `/auth/logout`                   | No   | Destroy session                                           |
+| GET    | `/auth/me`                       | Yes  | Get authenticated username                                |
+| GET    | `/stats`                         | Yes  | Aggregated dashboard statistics                           |
 | GET    | `/stats/trends`                  | Yes  | Per-day message volume and device activity (7/14/30 days) |
-| GET    | `/messages`                      | Yes  | List messages (paginated, filterable)         |
-| POST   | `/messages`                      | Yes  | Send a new SMS                                |
-| GET    | `/messages/:id`                  | Yes  | Get message details with delivery timeline    |
-| GET    | `/devices`                       | Yes  | List registered devices                       |
-| DELETE | `/devices/:id`                   | Yes  | Remove a device                               |
-| GET    | `/webhooks`                      | Yes  | List webhooks                                 |
-| POST   | `/webhooks`                      | Yes  | Create a webhook                              |
-| DELETE | `/webhooks/:id`                  | Yes  | Delete a webhook                              |
-| GET    | `/settings`                      | Yes  | Get device settings                           |
-| PATCH  | `/settings`                      | Yes  | Update device settings                        |
-| POST   | `/tokens`                        | Yes  | Generate an API token                         |
-| DELETE | `/tokens/:jti`                   | Yes  | Revoke an API token                           |
-| GET    | `/events`                        | Yes  | SSE real-time event stream                    |
-| POST   | `/api/webhooks/callback/:userId` | No   | Webhook callback receiver (called by SMSGate) |
+| GET    | `/messages`                      | Yes  | List messages (paginated, filterable)                     |
+| POST   | `/messages`                      | Yes  | Send a new SMS or MMS message                             |
+| GET    | `/messages/:id`                  | Yes  | Get message details with delivery timeline                |
+| GET    | `/devices`                       | Yes  | List registered devices                                   |
+| DELETE | `/devices/:id`                   | Yes  | Remove a device                                           |
+| GET    | `/webhooks`                      | Yes  | List webhooks                                             |
+| POST   | `/webhooks`                      | Yes  | Create a webhook                                          |
+| DELETE | `/webhooks/:id`                  | Yes  | Delete a webhook                                          |
+| GET    | `/settings`                      | Yes  | Get device settings                                       |
+| PATCH  | `/settings`                      | Yes  | Update device settings                                    |
+| POST   | `/tokens`                        | Yes  | Generate an API token                                     |
+| DELETE | `/tokens/:jti`                   | Yes  | Revoke an API token                                       |
+| GET    | `/events`                        | Yes  | SSE real-time event stream                                |
+| POST   | `/api/webhooks/callback/:userId` | No   | Webhook callback receiver (called by SMSGate)             |
 
 OpenAPI documentation is available at `/api/v1/docs` when enabled.
+
+### UI Screenshots
+
+**Messages** — filterable list with status indicators:
+
+<p align="center">
+  <img src="docs/images/messages.png" alt="Messages List" width="800">
+</p>
+
+**Compose SMS/MMS** — switch between SMS and MMS tabs, attach files:
+
+<p align="center">
+  <img src="docs/images/compose-sms.png" alt="Compose SMS" width="600">
+  &nbsp;&nbsp;
+  <img src="docs/images/compose-mms.png" alt="Compose MMS" width="600">
+</p>
+
+**Device Management** — view online/offline status:
+
+<p align="center">
+  <img src="docs/images/devices.png" alt="Devices" width="800">
+</p>
+
+**Settings** — configure device behavior:
+
+<p align="center">
+  <img src="docs/images/settings.png" alt="Settings" width="800">
+</p>
+
+**API Tokens** — generate and manage tokens:
+
+<p align="center">
+  <img src="docs/images/tokens.png" alt="API Tokens" width="800">
+</p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
