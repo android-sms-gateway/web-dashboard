@@ -245,7 +245,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Sends a new text message to one or more recipients.",
+                "description": "Sends a new text (SMS) or multimedia (MMS) message to one or more recipients.",
                 "consumes": [
                     "application/json"
                 ],
@@ -903,10 +903,16 @@ const docTemplate = `{
         "handlers.sendMessageRequest": {
             "type": "object",
             "required": [
-                "phoneNumbers",
-                "text"
+                "phoneNumbers"
             ],
             "properties": {
+                "deviceId": {
+                    "type": "string",
+                    "maxLength": 21
+                },
+                "mmsMessage": {
+                    "$ref": "#/definitions/smsgateway.MmsMessage"
+                },
                 "phoneNumbers": {
                     "type": "array",
                     "maxItems": 100,
@@ -1110,6 +1116,14 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
+                "mmsMessage": {
+                    "description": "Present only when ` + "`" + `includeContent=true` + "`" + ` and the message type is mms.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.MmsMessage"
+                        }
+                    ]
+                },
                 "recipients": {
                     "description": "Recipients states",
                     "type": "array",
@@ -1154,6 +1168,52 @@ const docTemplate = `{
                 "LIFO",
                 "FIFO"
             ]
+        },
+        "smsgateway.MmsAttachment": {
+            "type": "object",
+            "required": [
+                "contentType",
+                "data"
+            ],
+            "properties": {
+                "contentType": {
+                    "description": "ContentType is the MIME type of the attachment.",
+                    "type": "string",
+                    "example": "image/png"
+                },
+                "data": {
+                    "description": "Data is the base64-encoded attachment content.",
+                    "type": "string",
+                    "example": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+                },
+                "name": {
+                    "description": "Name is the optional file name of the attachment.",
+                    "type": "string",
+                    "example": "picture.png"
+                }
+            }
+        },
+        "smsgateway.MmsMessage": {
+            "type": "object",
+            "properties": {
+                "attachments": {
+                    "description": "Attachments is the list of attachments. Omitted when empty.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/smsgateway.MmsAttachment"
+                    }
+                },
+                "subject": {
+                    "description": "Subject is the optional subject of the MMS.",
+                    "type": "string",
+                    "example": "Hello"
+                },
+                "text": {
+                    "description": "Text is the optional text body of the MMS.",
+                    "type": "string",
+                    "example": "World"
+                }
+            }
         },
         "smsgateway.ProcessingState": {
             "type": "string",
@@ -1479,12 +1539,20 @@ const docTemplate = `{
                 "system:ping",
                 "mms:received",
                 "mms:downloaded",
-                "app:started"
+                "app:started",
+                "sms:batch:received",
+                "sms:batch:data-received",
+                "mms:batch:received",
+                "mms:batch:downloaded"
             ],
             "x-enum-comments": {
                 "WebhookEventAppStarted": "Triggered when the application is started.",
+                "WebhookEventMmsBatchDownloaded": "Triggered when a batch of MMS messages is downloaded.",
+                "WebhookEventMmsBatchReceived": "Triggered when a batch of MMS messages is received.",
                 "WebhookEventMmsDownloaded": "Triggered when an MMS is downloaded.",
                 "WebhookEventMmsReceived": "Triggered when an MMS is received.",
+                "WebhookEventSmsBatchDataReceived": "Triggered when a batch of data SMS messages is received.",
+                "WebhookEventSmsBatchReceived": "Triggered when a batch of SMS messages is received.",
                 "WebhookEventSmsCancelled": "Triggered when an SMS is cancelled.",
                 "WebhookEventSmsDataReceived": "Triggered when a data SMS is received.",
                 "WebhookEventSmsDelivered": "Triggered when an SMS is delivered.",
@@ -1503,7 +1571,11 @@ const docTemplate = `{
                 "Triggered when the device pings the server.",
                 "Triggered when an MMS is received.",
                 "Triggered when an MMS is downloaded.",
-                "Triggered when the application is started."
+                "Triggered when the application is started.",
+                "Triggered when a batch of SMS messages is received.",
+                "Triggered when a batch of data SMS messages is received.",
+                "Triggered when a batch of MMS messages is received.",
+                "Triggered when a batch of MMS messages is downloaded."
             ],
             "x-enum-varnames": [
                 "WebhookEventSmsReceived",
@@ -1515,7 +1587,11 @@ const docTemplate = `{
                 "WebhookEventSystemPing",
                 "WebhookEventMmsReceived",
                 "WebhookEventMmsDownloaded",
-                "WebhookEventAppStarted"
+                "WebhookEventAppStarted",
+                "WebhookEventSmsBatchReceived",
+                "WebhookEventSmsBatchDataReceived",
+                "WebhookEventMmsBatchReceived",
+                "WebhookEventMmsBatchDownloaded"
             ]
         }
     }

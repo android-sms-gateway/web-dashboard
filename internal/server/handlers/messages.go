@@ -24,6 +24,8 @@ type MessagesHandler struct {
 	logger     *zap.Logger
 }
 
+// NewMessagesHandler creates a new MessagesHandler with the given gateway service,
+// request validator, and logger.
 func NewMessagesHandler(
 	gatewaySvc *gateway.Factory,
 	validator *validator.Validate,
@@ -38,6 +40,8 @@ func NewMessagesHandler(
 	}
 }
 
+// Register mounts the message-related routes (list, send, get) on the provided router
+// with authentication and client middleware applied.
 func (h *MessagesHandler) Register(r fiber.Router) {
 	g := r.Group("/messages", session.AuthRequired(), client.New(h.gatewaySvc))
 
@@ -165,16 +169,18 @@ func (h *MessagesHandler) list(c *fiber.Ctx) error {
 }
 
 type sendMessageRequest struct {
-	PhoneNumbers []string `json:"phoneNumbers"        validate:"required,min=1,max=100,dive,required"`
-	Text         string   `json:"text"                validate:"required,min=1,max=65535"`
-	SimNumber    *uint8   `json:"simNumber,omitempty" validate:"omitempty,min=1,max=3"`
-	Priority     *int8    `json:"priority,omitempty"  validate:"omitempty,min=-128,max=127"`
+	PhoneNumbers []string               `json:"phoneNumbers"         validate:"required,min=1,max=100,dive,required"`
+	Text         string                 `json:"text,omitempty"       validate:"omitempty,min=1,max=65535"`
+	MmsMessage   *smsgateway.MmsMessage `json:"mmsMessage,omitempty" validate:"omitempty"`
+	DeviceID     *string                `json:"deviceId,omitempty"   validate:"omitempty,max=21"`
+	SimNumber    *uint8                 `json:"simNumber,omitempty"  validate:"omitempty,min=1,max=3"`
+	Priority     *int8                  `json:"priority,omitempty"   validate:"omitempty,min=-128,max=127"`
 }
 
-// SendMessage sends a new text message.
+// SendMessage sends a new text or MMS message.
 //
 //	@Summary		Send message
-//	@Description	Sends a new text message to one or more recipients.
+//	@Description	Sends a new text (SMS) or multimedia (MMS) message to one or more recipients.
 //	@Tags			messages
 //	@Accept			json
 //	@Produce		json
@@ -190,15 +196,24 @@ func (h *MessagesHandler) send(c *fiber.Ctx, req *sendMessageRequest) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to get client")
 	}
 
+	if (req.Text == "") == (req.MmsMessage == nil) {
+		return fiber.NewError(fiber.StatusBadRequest, "exactly one of text or mmsMessage is required")
+	}
+
+	if req.MmsMessage != nil {
+		if err := req.MmsMessage.Validate(); err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+	}
+
 	msg := smsgateway.Message{
 		PhoneNumbers: req.PhoneNumbers,
-		TextMessage: &smsgateway.TextMessage{
-			Text: req.Text,
-		},
-		SimNumber: req.SimNumber,
+		TextMessage:  nil,
+		MmsMessage:   nil,
+		SimNumber:    req.SimNumber,
 
 		ID:                 "",
-		DeviceID:           "",
+		DeviceID:           lo.FromPtr(req.DeviceID),
 		Message:            "",
 		DataMessage:        nil,
 		IsEncrypted:        false,
@@ -207,6 +222,12 @@ func (h *MessagesHandler) send(c *fiber.Ctx, req *sendMessageRequest) error {
 		TTL:                nil,
 		ValidUntil:         nil,
 		ScheduleAt:         nil,
+	}
+
+	if req.MmsMessage != nil {
+		msg.MmsMessage = req.MmsMessage
+	} else {
+		msg.TextMessage = &smsgateway.TextMessage{Text: req.Text}
 	}
 
 	if req.Priority != nil {
