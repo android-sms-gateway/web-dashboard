@@ -1,27 +1,35 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { sendMessage } from '$lib/api';
-	import { dc, loadDevices } from '$lib/device-cache.svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert/index.js';
+	import { onMount } from "svelte";
+	import { goto } from "$app/navigation";
+	import { sendMessage } from "$lib/api";
+	import { dc, loadDevices } from "$lib/device-cache.svelte";
+	import { smsStats } from "$lib/sms";
+	import { Button } from "$lib/components/ui/button/index.js";
+	import { Input } from "$lib/components/ui/input/index.js";
+	import { Label } from "$lib/components/ui/label/index.js";
+	import { Textarea } from "$lib/components/ui/textarea/index.js";
+	import {
+		Card,
+		CardContent,
+		CardHeader,
+		CardTitle,
+	} from "$lib/components/ui/card/index.js";
+	import { Alert, AlertDescription } from "$lib/components/ui/alert/index.js";
 
-	let phones = $state('');
-	let text = $state('');
-	let deviceId = $state('');
-	let simNumber = $state('');
+	let phones = $state("");
+	let text = $state("");
+	let deviceId = $state("");
+	let simNumber = $state("");
 	let sending = $state(false);
-	let error = $state('');
+	let error = $state("");
+
+	let textStats = $derived(smsStats(text.trim()));
 
 	onMount(() => loadDevices());
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		error = '';
+		error = "";
 
 		const phoneList = phones
 			.split(/[\n,]+/)
@@ -29,12 +37,12 @@
 			.filter((p) => p.length > 0);
 
 		if (phoneList.length === 0) {
-			error = 'Enter at least one phone number';
+			error = "Enter at least one phone number";
 			return;
 		}
 
 		if (!text.trim()) {
-			error = 'Message text is required';
+			error = "Message text is required";
 			return;
 		}
 
@@ -45,12 +53,17 @@
 				text: text.trim(),
 				...(deviceId ? { deviceId } : {}),
 				...(simNumber.trim()
-					? (() => { const n = parseInt(simNumber.trim(), 10); return Number.isFinite(n) ? { simNumber: Math.min(Math.max(n, 1), 3) } : {}; })()
+					? (() => {
+							const n = parseInt(simNumber.trim(), 10);
+							return Number.isFinite(n)
+								? { simNumber: Math.min(Math.max(n, 1), 3) }
+								: {};
+						})()
 					: {}),
 			});
-			goto('/messages');
+			goto("/messages");
 		} catch {
-			error = 'Failed to send message';
+			error = "Failed to send message";
 		} finally {
 			sending = false;
 		}
@@ -59,7 +72,9 @@
 
 <div class="mx-auto max-w-lg space-y-6">
 	<div class="flex items-center gap-3">
-		<Button variant="ghost" onclick={() => goto('/messages')}>&larr; Back</Button>
+		<Button variant="ghost" onclick={() => goto("/messages")}
+			>&larr; Back</Button
+		>
 		<h1 class="text-2xl font-bold tracking-tight">Send Message</h1>
 	</div>
 
@@ -76,7 +91,9 @@
 				{/if}
 
 				<div class="space-y-2">
-					<Label for="phones">Phone Numbers (one per line or comma-separated)</Label>
+					<Label for="phones"
+						>Phone Numbers (one per line or comma-separated)</Label
+					>
 					<Textarea
 						id="phones"
 						bind:value={phones}
@@ -95,6 +112,16 @@
 						placeholder="Enter your message..."
 						disabled={sending}
 					/>
+					<p class="text-right text-xs text-muted-foreground">
+						{#if textStats.parts === 0}
+							0 characters
+						{:else}
+							{textStats.chars} character{textStats.chars !== 1
+								? "s"
+								: ""} · {textStats.parts}
+							SMS part{textStats.parts !== 1 ? "s" : ""} · {textStats.encoding}
+						{/if}
+					</p>
 				</div>
 
 				<div class="space-y-2">
@@ -103,12 +130,14 @@
 						id="device"
 						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 						value={deviceId}
-						onchange={(e) => (deviceId = (e.target as HTMLSelectElement).value)}
+						onchange={(e) =>
+							(deviceId = (e.target as HTMLSelectElement).value)}
 						disabled={sending}
 					>
 						<option value="">Any device</option>
 						{#if dc.loading}
-							<option value="" disabled>Loading devices...</option>
+							<option value="" disabled>Loading devices...</option
+							>
 						{:else if dc.error}
 							<option value="" disabled>Failed to load</option>
 						{:else}
@@ -132,7 +161,7 @@
 				</div>
 
 				<Button type="submit" class="w-full" disabled={sending}>
-					{sending ? 'Sending...' : 'Send Message'}
+					{sending ? "Sending..." : "Send Message"}
 				</Button>
 			</form>
 		</CardContent>
