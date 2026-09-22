@@ -42,11 +42,13 @@ func (h *DevicesHandler) Register(r fiber.Router) {
 }
 
 type deviceListItem struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	LastSeen  time.Time `json:"lastSeen"`
-	IsOnline  bool      `json:"isOnline"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	LastSeen   time.Time `json:"lastSeen"`
+	IsOnline   bool      `json:"isOnline"`
+	CreatedAt  time.Time `json:"createdAt"`
+	PublicKey  *string   `json:"publicKey,omitempty"`
+	KeyVersion *int      `json:"keyVersion,omitempty"`
 }
 
 // ListDevices returns registered devices.
@@ -74,11 +76,13 @@ func (h *DevicesHandler) list(c *fiber.Ctx) error {
 	items := make([]deviceListItem, len(devices))
 	for i, d := range devices {
 		items[i] = deviceListItem{
-			ID:        d.ID,
-			Name:      d.Name,
-			LastSeen:  d.LastSeen,
-			IsOnline:  d.DeletedAt == nil && time.Since(d.LastSeen) < dashboard.DeviceOnlineIn,
-			CreatedAt: d.CreatedAt,
+			ID:         d.ID,
+			Name:       d.Name,
+			PublicKey:  d.PublicKey,
+			KeyVersion: d.KeyVersion,
+			LastSeen:   d.LastSeen,
+			IsOnline:   d.DeletedAt == nil && time.Since(d.LastSeen) < dashboard.DeviceOnlineIn,
+			CreatedAt:  d.CreatedAt,
 		}
 	}
 

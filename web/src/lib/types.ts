@@ -44,6 +44,10 @@ export interface Device {
 	lastSeen: string;
 	isOnline: boolean;
 	createdAt: string;
+	/** Base64 X.509 SPKI DER of the E2E public key; absent when E2E is not configured. */
+	publicKey?: string | null;
+	/** Key rotation version; present only with publicKey. */
+	keyVersion?: number | null;
 }
 
 export interface MessageListItem {
