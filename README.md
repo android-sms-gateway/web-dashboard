@@ -20,7 +20,7 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
   - [⭐ Features](#-features)
   - [📦 Prerequisites](#-prerequisites)
   - [🚀 Quickstart](#-quickstart)
-    - [Environment Variables](#environment-variables)
+    - [Configuration](#configuration)
   - [🚀 Build and Deploy](#-build-and-deploy)
   - [📚 Documentation](#-documentation)
   - [🤝 Contributing](#-contributing)
@@ -64,17 +64,21 @@ npm run dev
 
 Vite serves the SPA at http://localhost:5173.
 
-### Environment Variables
+### Configuration
 
-Configuration is read from environment variables or an optional YAML file (`CONFIG_PATH`):
+Configuration is read from an optional YAML file (`CONFIG_PATH`), then a local `.env` file, then environment variables (later sources win). Nested keys use a `__` separator. See [.env.example](.env.example) for the full annotated reference.
 
-| Variable               | Default                                       | Description                                      |
-| ---------------------- | --------------------------------------------- | ------------------------------------------------ |
-| `HTTP__LISTEN`         | `127.0.0.1:3000`                              | HTTP server bind address                         |
-| `GATEWAY__URL`         | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                   |
-| `GATEWAY__WEBHOOK_URL` | `http://localhost:3000/api/webhooks/callback` | Callback URL for webhook events (localhost default is for local or colocated gateway deployments; remote deployments must use a publicly reachable HTTPS URL) |
-| `CACHE__URL`           | `memory://`                                   | Trends cache backend (`memory://` or `redis://`) |
-| `CONFIG_PATH`          | -                                             | Path to optional YAML configuration file         |
+| Variable                 | Default                                       | Description                                                                                                                                                          |
+| ------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HTTP__ADDRESS`          | `127.0.0.1:3000`                              | HTTP server bind address                                                                                                                                             |
+| `HTTP__PROXY_HEADER`     | `X-Forwarded-For`                             | Header carrying the real client IP behind a proxy                                                                                                                    |
+| `HTTP__PROXIES`          | `[]`                                          | Trusted proxy IPs (JSON array)                                                                                                                                       |
+| `HTTP__OPENAPI__ENABLED` | `true`                                        | Serve Swagger UI at `/api/v1/docs`                                                                                                                                   |
+| `GATEWAY__URL`           | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                                                                                                                                       |
+| `WEBHOOKS__URL`          | `http://localhost:3000/api/webhooks/callback` | Public callback URL for webhook events (localhost default is for local or colocated gateway deployments; remote deployments must use a publicly reachable HTTPS URL) |
+| `CACHE__URL`             | `memory://`                                   | Trends cache backend (`memory://` or `redis://`)                                                                                                                     |
+| `CONFIG_PATH`            | -                                             | Path to optional YAML configuration file                                                                                                                             |
+| `DEBUG`                  | -                                             | Enable debug logging (set by `make air`)                                                                                                                             |
 
 ## 🚀 Build and Deploy
 
@@ -89,8 +93,8 @@ Docker images (`linux/amd64` and `linux/arm64`, Alpine-based, non-root user) are
 ```bash
 docker run --name web-dashboard \
   -p 3000:3000 \
-  -e HTTP__LISTEN=0.0.0.0:3000 \
-  -e GATEWAY__WEBHOOK_URL=https://your-public-url/api/webhooks/callback \
+  -e HTTP__ADDRESS=0.0.0.0:3000 \
+  -e WEBHOOKS__URL=https://your-public-url/api/webhooks/callback \
   ghcr.io/android-sms-gateway/web-dashboard:latest
 ```
 
