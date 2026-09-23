@@ -18,6 +18,7 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
   - [📖 About](#-about)
   - [📚 Table of Contents](#-table-of-contents)
   - [⭐ Features](#-features)
+  - [📸 Screenshots](#-screenshots)
   - [📦 Prerequisites](#-prerequisites)
   - [🚀 Quickstart](#-quickstart)
     - [Environment Variables](#environment-variables)
@@ -29,13 +30,22 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
 ## ⭐ Features
 
 - Dashboard: aggregated statistics (devices online/active/total, messages sent/pending/failed), 7/14/30-day trend charts, live activity feed
-- Messages: paginated list with filters (state, device, date range), send SMS, delivery status timeline
+- Messages: paginated list with filters (state, device, date range), send SMS or MMS with attachments, optionally target a specific device, delivery status timeline
 - Devices: list with online/offline status, remove devices
 - Webhooks: create, list, and delete subscriptions for all SMS event types (received, sent, delivered, failed, MMS, data SMS, ping)
 - API tokens: generate JWT tokens with granular scope selection (15 permission levels), copy and revoke
 - Device settings: SIM selection mode, message intervals, retry policy, webhook signing key, encryption passphrase
 - Real-time: live SSE stream with toast notifications for messages, state changes, and device status
 - Observability: OpenAPI/Swagger UI at `/api/v1/docs`, Prometheus metrics at `/metrics`
+
+## 📸 Screenshots
+
+|                                             |                                             |
+| ------------------------------------------- | ------------------------------------------- |
+| ![Dashboard](docs/images/dashboard.png)     | ![Messages](docs/images/messages.png)       |
+| ![Compose SMS](docs/images/compose-sms.png) | ![Compose MMS](docs/images/compose-mms.png) |
+| ![Devices](docs/images/devices.png)         | ![Tokens](docs/images/tokens.png)           |
+| ![Settings](docs/images/settings.png)       | ![Login](docs/images/login.png)             |
 
 ## 📦 Prerequisites
 
@@ -66,15 +76,17 @@ Vite serves the SPA at http://localhost:5173.
 
 ### Environment Variables
 
-Configuration is read from environment variables or an optional YAML file (`CONFIG_PATH`):
+Configuration is read from environment variables, an optional `.env` file in the working directory, or an optional YAML file (`CONFIG_PATH`). Env vars use `__` as the section separator and override file-based values.
 
-| Variable               | Default                                       | Description                                      |
-| ---------------------- | --------------------------------------------- | ------------------------------------------------ |
-| `HTTP__LISTEN`         | `127.0.0.1:3000`                              | HTTP server bind address                         |
-| `GATEWAY__URL`         | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                   |
-| `GATEWAY__WEBHOOK_URL` | `http://localhost:3000/api/webhooks/callback` | Callback URL for webhook events (localhost default is for local or colocated gateway deployments; remote deployments must use a publicly reachable HTTPS URL) |
-| `CACHE__URL`           | `memory://`                                   | Trends cache backend (`memory://` or `redis://`) |
-| `CONFIG_PATH`          | -                                             | Path to optional YAML configuration file         |
+| Variable        | Default                                       | Description                                                                                                                                                   |
+| --------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HTTP__ADDRESS` | `127.0.0.1:3000`                              | HTTP server bind address                                                                                                                                      |
+| `GATEWAY__URL`  | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                                                                                                                                |
+| `WEBHOOKS__URL` | `http://localhost:3000/api/webhooks/callback` | Callback URL for webhook events (localhost default is for local or colocated gateway deployments; remote deployments must use a publicly reachable HTTPS URL) |
+| `CACHE__URL`    | `memory://`                                   | Trends cache backend (`memory://` or `redis://`)                                                                                                              |
+| `CONFIG_PATH`   | -                                             | Path to optional YAML configuration file                                                                                                                      |
+
+See [.env.example](.env.example) for the full list, including proxy and OpenAPI settings.
 
 ## 🚀 Build and Deploy
 
@@ -89,8 +101,8 @@ Docker images (`linux/amd64` and `linux/arm64`, Alpine-based, non-root user) are
 ```bash
 docker run --name web-dashboard \
   -p 3000:3000 \
-  -e HTTP__LISTEN=0.0.0.0:3000 \
-  -e GATEWAY__WEBHOOK_URL=https://your-public-url/api/webhooks/callback \
+  -e HTTP__ADDRESS=0.0.0.0:3000 \
+  -e WEBHOOKS__URL=https://your-public-url/api/webhooks/callback \
   ghcr.io/android-sms-gateway/web-dashboard:latest
 ```
 

@@ -24,6 +24,7 @@
 		Td,
 	} from "$lib/components/ui/table/index.js";
 	import type { MessageDetail } from "$lib/types";
+	import AttachmentPreview from "$lib/components/messages/AttachmentPreview.svelte";
 
 	let message = $state<MessageDetail | null>(null);
 	let loading = $state(true);
@@ -103,6 +104,26 @@
 						>
 					{/if}
 
+					{#if message.mmsMessage?.subject}
+						<span class="font-medium text-muted-foreground"
+							>Subject</span
+						>
+						<span>
+							<Badge variant="secondary" class="break-all"
+								>{message.mmsMessage.subject}</Badge
+							>
+						</span>
+					{/if}
+
+					{#if message.mmsMessage?.text}
+						<span class="font-medium text-muted-foreground"
+							>Message</span
+						>
+						<span class="whitespace-pre-wrap break-all"
+							>{message.mmsMessage.text}</span
+						>
+					{/if}
+
 					{#if message.dataMessage}
 						<span class="font-medium text-muted-foreground"
 							>Data</span
@@ -124,6 +145,23 @@
 				</div>
 			</CardContent>
 		</Card>
+
+		{#if message.mmsMessage?.attachments?.length}
+			<div>
+				<h2 class="mb-3 text-lg font-semibold">
+					Attachments ({message.mmsMessage.attachments.length})
+				</h2>
+				<ul
+					class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+				>
+					{#each message.mmsMessage.attachments as att, i (i)}
+						<li>
+							<AttachmentPreview attachment={att} />
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 
 		<div>
 			<h2 class="mb-3 text-lg font-semibold">Recipients</h2>
