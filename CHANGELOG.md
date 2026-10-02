@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **SMS parts counter** — the compose editor now shows a live character count, concatenated SMS part count, and encoding (GSM-7 or UCS-2) as you type
 
+#### Devices
+
+- **End-to-end encryption indicator** — the devices list now shows whether a device has an E2E public key configured, along with its key rotation version (shown as `E2E v<N>`; devices without a key show `None`)
+
+### Improvements
+
+- **Longer `phoneNumber` values accepted** — the `phoneNumber` field in the API docs now allows up to 512 characters (was 128)
+
 ## [0.5.1] - 2026-08-22
 
 ### Bug Fixes
