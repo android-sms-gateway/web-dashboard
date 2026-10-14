@@ -30,7 +30,7 @@ func New(storage fiber.Storage) fiber.Handler {
 		c.Locals(localsKeySession, sess)
 
 		if nextErr := c.Next(); nextErr != nil {
-			return nextErr //nolint:wrapcheck // we don't want to wrap the error
+			return nextErr // we don't want to wrap the error
 		}
 
 		if saveErr := sess.Save(); saveErr != nil {

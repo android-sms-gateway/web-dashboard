@@ -48,6 +48,8 @@ func newDevicesApp(t *testing.T, devicesJSON string) *fiber.App {
 }
 
 func TestListDevicesOnline(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	stale := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)
 	deleted := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)
@@ -103,6 +105,8 @@ func TestListDevicesOnline(t *testing.T) {
 }
 
 func TestListDevicesUnauthorized(t *testing.T) {
+	t.Parallel()
+
 	app := newDevicesApp(t, `[]`)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/devices", nil)

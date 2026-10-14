@@ -140,6 +140,8 @@ func postCallback(t *testing.T, appURL string, body string) *http.Response {
 }
 
 func TestCallbackMessageStateChanged(t *testing.T) {
+	t.Parallel()
+
 	cases := []struct {
 		event     string
 		wantState string
@@ -151,6 +153,8 @@ func TestCallbackMessageStateChanged(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.event, func(t *testing.T) {
+			t.Parallel()
+
 			appURL := newCallbackServer(t)
 			frames := openStream(t, appURL)
 
@@ -187,6 +191,8 @@ func TestCallbackMessageStateChanged(t *testing.T) {
 }
 
 func TestCallbackMessageReceived(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 	frames := openStream(t, appURL)
 
@@ -221,6 +227,8 @@ func TestCallbackMessageReceived(t *testing.T) {
 }
 
 func TestCallbackPing(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 	frames := openStream(t, appURL)
 
@@ -236,6 +244,8 @@ func TestCallbackPing(t *testing.T) {
 }
 
 func TestCallbackUnknownEvent(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 	frames := openStream(t, appURL)
 
@@ -256,6 +266,8 @@ func TestCallbackUnknownEvent(t *testing.T) {
 }
 
 func TestCallbackInvalidPayload(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 
 	resp := postCallback(t, appURL, `{"event":"sms:sent","payload":"not-an-object"}`)
@@ -265,6 +277,8 @@ func TestCallbackInvalidPayload(t *testing.T) {
 }
 
 func TestCallbackInvalidBody(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 
 	resp := postCallback(t, appURL, `not-json`)
@@ -274,6 +288,8 @@ func TestCallbackInvalidBody(t *testing.T) {
 }
 
 func TestCallbackMissingUser(t *testing.T) {
+	t.Parallel()
+
 	appURL := newCallbackServer(t)
 
 	resp, err := http.Post(appURL+"/api/webhooks/callback/", "application/json", bytes.NewBufferString(`{}`))

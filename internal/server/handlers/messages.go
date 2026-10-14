@@ -63,7 +63,7 @@ func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
 	return smsgateway.ListMessagesOptions{
 		State:          q.State,
 		DeviceID:       q.DeviceID,
-		IncludeContent: lo.ToPtr(true),
+		IncludeContent: new(true),
 		Sort:           lo.ToPtr(smsgateway.CreatedAtDescending),
 		DatePeriodOptions: smsgateway.DatePeriodOptions{
 			From: q.From,
