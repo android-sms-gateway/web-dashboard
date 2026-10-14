@@ -102,13 +102,17 @@ func countMessagesRange(
 	query := func(state *string, out *int) {
 		_, n, err := client.ListMessages(ctx, smsgateway.ListMessagesOptions{
 			State:          state,
-			Limit:          &limit,
-			From:           from,
-			To:             to,
 			DeviceID:       nil,
-			Offset:         nil,
 			IncludeContent: nil,
 			Sort:           nil,
+			DatePeriodOptions: smsgateway.DatePeriodOptions{
+				From: from,
+				To:   to,
+			},
+			PaginationOptions: smsgateway.PaginationOptions{
+				Limit:  &limit,
+				Offset: nil,
+			},
 		})
 		if err != nil {
 			recordErr(err)
@@ -210,14 +214,18 @@ func sweepDay(
 
 	for {
 		msgs, _, listErr := client.ListMessages(ctx, smsgateway.ListMessagesOptions{
-			From:           &from,
-			To:             &to,
 			State:          nil,
 			DeviceID:       nil,
-			Limit:          &limit,
-			Offset:         &offset,
 			IncludeContent: nil,
 			Sort:           nil,
+			DatePeriodOptions: smsgateway.DatePeriodOptions{
+				From: &from,
+				To:   &to,
+			},
+			PaginationOptions: smsgateway.PaginationOptions{
+				Limit:  &limit,
+				Offset: &offset,
+			},
 		})
 		if listErr != nil {
 			return daySweepStats{}, fmt.Errorf("failed to list messages: %w", listErr)
