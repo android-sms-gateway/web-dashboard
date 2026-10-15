@@ -61,14 +61,18 @@ type messageListQuery struct {
 
 func (q messageListQuery) toOptions() smsgateway.ListMessagesOptions {
 	return smsgateway.ListMessagesOptions{
-		Limit:          q.Limit,
-		Offset:         q.Offset,
 		State:          q.State,
 		DeviceID:       q.DeviceID,
-		From:           q.From,
-		To:             q.To,
-		IncludeContent: lo.ToPtr(true),
-		Sort:           lo.ToPtr(smsgateway.CreatedAtDescending),
+		IncludeContent: new(true),
+		Sort:           new(smsgateway.CreatedAtDescending),
+		PaginationOptions: smsgateway.PaginationOptions{
+			Limit:  q.Limit,
+			Offset: q.Offset,
+		},
+		DatePeriodOptions: smsgateway.DatePeriodOptions{
+			From: q.From,
+			To:   q.To,
+		},
 	}
 }
 

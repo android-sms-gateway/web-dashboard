@@ -1078,6 +1078,12 @@ const docTemplate = `{
                 "state"
             ],
             "properties": {
+                "createdAt": {
+                    "description": "Message creation time",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2020-01-01T00:00:00Z"
+                },
                 "dataMessage": {
                     "description": "Present only when ` + "`" + `includeContent=true` + "`" + ` and the message type is data.",
                     "allOf": [
@@ -1131,6 +1137,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/smsgateway.RecipientState"
                     }
+                },
+                "scheduleAt": {
+                    "description": "Scheduled delivery time, if set",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2020-01-01T08:30:00Z"
                 },
                 "state": {
                     "description": "State",
@@ -1269,7 +1281,7 @@ const docTemplate = `{
                 "phoneNumber": {
                     "description": "Phone number or first 16 symbols of SHA256 hash",
                     "type": "string",
-                    "maxLength": 128,
+                    "maxLength": 512,
                     "minLength": 1,
                     "example": "79990001234"
                 },
