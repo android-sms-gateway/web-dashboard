@@ -56,7 +56,7 @@ func (h *DashboardHandler) stats(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "failed to get credentials")
 	}
 
-	stats, err := h.dashboardSvc.Stats(c.Context(), login, password)
+	stats, err := h.dashboardSvc.Stats(c.UserContext(), login, password)
 	if err != nil {
 		h.logger.Warn("failed to get stats", zap.Error(err))
 		return fiber.NewError(fiber.StatusBadGateway, "failed to get stats")
@@ -99,7 +99,7 @@ func (h *DashboardHandler) trends(c *fiber.Ctx) error {
 		days = *query.Days
 	}
 
-	trends, err := h.dashboardSvc.Trends(c.Context(), login, password, days)
+	trends, err := h.dashboardSvc.Trends(c.UserContext(), login, password, days)
 	if err != nil {
 		h.logger.Warn("failed to get trends", zap.Error(err))
 		return fiber.NewError(fiber.StatusBadGateway, "failed to get trends")
