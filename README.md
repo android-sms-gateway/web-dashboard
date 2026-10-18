@@ -36,7 +36,7 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
 - API tokens: generate JWT tokens with granular scope selection (15 permission levels), copy and revoke
 - Device settings: SIM selection mode, message intervals, retry policy, webhook signing key, encryption passphrase
 - Real-time: live SSE stream with toast notifications for messages, state changes, and device status
-- Observability: OpenAPI/Swagger UI at `/api/v1/docs`, Prometheus metrics at `/metrics`
+- Observability: OpenAPI/Swagger UI at `/api/v1/docs`, Prometheus metrics at `/metrics`, health probes at `/health/live`, `/health/ready`, and `/health/startup`
 
 ## 📸 Screenshots
 
@@ -49,8 +49,9 @@ The dashboard proxies the [SMSGate 3rd Party API](https://docs.sms-gate.app/inte
 
 ## 📦 Prerequisites
 
-- Go 1.25+
+- Go 1.26+
 - Node.js 20.19+ or 22.12+ (frontend build)
+- [swag](https://github.com/swaggo/swag) CLI (`go install github.com/swaggo/swag/cmd/swag@latest`) — required by `go generate`, which `make air` and `make build` run
 - Optional: [air](https://github.com/air-verse/air) for live reload (`go install github.com/air-verse/air@latest`), `golangci-lint`
 
 ## 🚀 Quickstart
@@ -78,19 +79,19 @@ Vite serves the SPA at http://localhost:5173.
 
 Configuration is read from an optional YAML file (`CONFIG_PATH`), then a local `.env` file, then environment variables (later sources win). Nested keys use a `__` separator. See [.env.example](.env.example) for the full annotated reference.
 
-| Variable                       | Default                                       | Description                                                                                                                                                                    |
-| ------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `HTTP__ADDRESS`                | `127.0.0.1:3000`                              | HTTP server bind address                                                                                                                                                       |
-| `HTTP__PROXY_HEADER`           | `X-Forwarded-For`                             | Header carrying the real client IP behind a proxy                                                                                                                              |
-| `HTTP__PROXIES`                | `[]`                                          | Trusted proxy IPs (JSON array)                                                                                                                                                 |
-| `HTTP__OPENAPI__ENABLED`       | `true`                                        | Serve Swagger UI at `/api/v1/docs`                                                                                                                                             |
-| `HTTP__OPENAPI__PUBLIC_HOST`   | -                                             | Override the host shown in generated OpenAPI docs (empty = use request host)                                                                                                   |
-| `HTTP__OPENAPI__PUBLIC_PATH`   | -                                             | Override the base path shown in generated OpenAPI docs (empty = use request path)                                                                                             |
-| `GATEWAY__URL`                 | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                                                                                                                                                 |
-| `WEBHOOKS__URL`                | `http://localhost:3000/api/webhooks/callback` | Base public callback URL for webhook events; the dashboard appends the gateway login to register `<base>/<login>` per session. Must be reachable by the gateway (a remote deployment needs a publicly reachable HTTPS URL) |
-| `CACHE__URL`                   | `memory://`                                   | Trends cache backend (`memory://` or `redis://`)                                                                                                                              |
-| `CONFIG_PATH`                  | -                                             | Path to optional YAML configuration file                                                                                                                                      |
-| `DEBUG`                        | -                                             | Enable debug logging (set by `make air`)                                                                                                                                      |
+| Variable                     | Default                                       | Description                                                                                                                                                                                                                |
+| ---------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HTTP__ADDRESS`              | `127.0.0.1:3000`                              | HTTP server bind address                                                                                                                                                                                                   |
+| `HTTP__PROXY_HEADER`         | `X-Forwarded-For`                             | Header carrying the real client IP behind a proxy                                                                                                                                                                          |
+| `HTTP__PROXIES`              | `[]`                                          | Trusted proxy IPs (JSON array)                                                                                                                                                                                             |
+| `HTTP__OPENAPI__ENABLED`     | `true`                                        | Serve Swagger UI at `/api/v1/docs`                                                                                                                                                                                         |
+| `HTTP__OPENAPI__PUBLIC_HOST` | -                                             | Override the host shown in generated OpenAPI docs (empty = use request host)                                                                                                                                               |
+| `HTTP__OPENAPI__PUBLIC_PATH` | -                                             | Override the base path shown in generated OpenAPI docs (empty = use request path)                                                                                                                                          |
+| `GATEWAY__URL`               | `https://api.sms-gate.app/3rdparty/v1`        | SMSGate 3rd Party API endpoint                                                                                                                                                                                             |
+| `WEBHOOKS__URL`              | `http://localhost:3000/api/webhooks/callback` | Base public callback URL for webhook events; the dashboard appends the gateway login to register `<base>/<login>` per session. Must be reachable by the gateway (a remote deployment needs a publicly reachable HTTPS URL) |
+| `CACHE__URL`                 | `memory://`                                   | Trends cache backend (`memory://` or `redis://`)                                                                                                                                                                           |
+| `CONFIG_PATH`                | -                                             | Path to optional YAML configuration file                                                                                                                                                                                   |
+| `DEBUG`                      | -                                             | Enable debug logging (process environment only; set by `make air`)                                                                                                                                                         |
 
 ## 🚀 Build and Deploy
 
