@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improvements
+
+- **Docker healthcheck** — the published image now probes `/health/live` every 15 seconds after a 20-second start period, so Docker and orchestrators can detect an unhealthy container
+
+## [0.6.3] - 2026-10-27
+
+### Maintenance
+
+- Updated `source-map-js` from `1.2.1` to `1.2.2`
+
+## [0.6.2] - 2026-10-26
+
+### Maintenance
+
+- Upgraded the Go toolchain from `1.25.7` to `1.26.0`
+- Updated `devalue` from `5.8.1` to `5.9.4`
+
+## [0.6.1] - 2026-10-20
+
 ### New Features
 
 #### Devices
