@@ -89,6 +89,8 @@ func login(t *testing.T, app *fiber.App, login, password string) string {
 }
 
 func TestTrendsInvalidDays(t *testing.T) {
+	t.Parallel()
+
 	app := newTestApp(newUpstream(t).URL)
 	cookie := login(t, app, "user", "pass")
 
@@ -107,6 +109,8 @@ func TestTrendsInvalidDays(t *testing.T) {
 }
 
 func TestTrendsUnauthorized(t *testing.T) {
+	t.Parallel()
+
 	app := newTestApp(newUpstream(t).URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/stats/trends", nil)
@@ -123,6 +127,8 @@ func TestTrendsUnauthorized(t *testing.T) {
 }
 
 func TestTrendsOK(t *testing.T) {
+	t.Parallel()
+
 	app := newTestApp(newUpstream(t).URL)
 	cookie := login(t, app, "user", "pass")
 

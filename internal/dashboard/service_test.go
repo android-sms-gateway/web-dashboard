@@ -31,6 +31,8 @@ func bucketDate(now time.Time, offsetDays int) string {
 }
 
 func TestStats(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -71,6 +73,8 @@ func TestStats(t *testing.T) {
 }
 
 func TestTrendsDefaultDays(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -102,6 +106,8 @@ func TestTrendsDefaultDays(t *testing.T) {
 }
 
 func TestTrendsCounts(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -163,6 +169,8 @@ func TestTrendsCounts(t *testing.T) {
 }
 
 func TestTrendsVolumeStateDerivation(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -199,6 +207,8 @@ func TestTrendsVolumeStateDerivation(t *testing.T) {
 }
 
 func TestTrendsVolumeSentClamp(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -231,6 +241,8 @@ func TestTrendsVolumeSentClamp(t *testing.T) {
 }
 
 func TestTrendsDeviceActivity(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -271,6 +283,8 @@ func TestTrendsDeviceActivity(t *testing.T) {
 }
 
 func TestTrendsDeviceActivityPagination(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -312,6 +326,8 @@ func TestTrendsDeviceActivityPagination(t *testing.T) {
 }
 
 func TestTrendsCache(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -331,6 +347,8 @@ func TestTrendsCache(t *testing.T) {
 }
 
 func TestTrendsCacheIsolatedPerUser(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -354,6 +372,8 @@ func TestTrendsCacheIsolatedPerUser(t *testing.T) {
 }
 
 func TestTrendsCacheIsolatedPerDays(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
@@ -373,6 +393,8 @@ func TestTrendsCacheIsolatedPerDays(t *testing.T) {
 }
 
 func TestTrendsUpstreamError(t *testing.T) {
+	t.Parallel()
+
 	upstream := newFakeUpstream()
 	t.Cleanup(upstream.close)
 
