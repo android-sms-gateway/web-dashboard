@@ -18,6 +18,22 @@ import type {
 
 const BASE = '/api/v1';
 
+function extractMessage(body: string): string {
+	try {
+		const parsed: unknown = JSON.parse(body);
+		if (parsed !== null && typeof parsed === 'object' && 'message' in parsed) {
+			const { message } = parsed as { message: unknown };
+			if (typeof message === 'string' && message.trim() !== '') {
+				return message;
+			}
+		}
+	} catch {
+		return '';
+	}
+
+	return '';
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
 	const res = await fetch(`${BASE}${path}`, {
 		...options,
@@ -33,7 +49,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		try {
 			detail = await res.text();
 		} catch {}
-		throw new Error(detail || `API error: ${res.status}`);
+		throw new Error(extractMessage(detail) || detail || `API error: ${res.status}`);
 	}
 
 	if (res.status === 204) {

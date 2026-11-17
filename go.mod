@@ -3,7 +3,7 @@ module github.com/android-sms-gateway/web-dashboard
 go 1.26.0
 
 require (
-	github.com/android-sms-gateway/client-go v1.16.3
+	github.com/android-sms-gateway/client-go v1.17.1-0.20261117030426-406a25c18167
 	github.com/go-core-fx/cachefx v0.0.3
 	github.com/go-core-fx/config v0.1.0
 	github.com/go-core-fx/fiberfx v0.6.0

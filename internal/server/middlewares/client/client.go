@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 
-	"github.com/android-sms-gateway/client-go/smsgateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/session"
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +26,8 @@ func New(factory *gateway.Factory) fiber.Handler {
 	}
 }
 
-func Get(c *fiber.Ctx) *smsgateway.Client {
-	client, ok := c.Locals(localsKeyClient).(*smsgateway.Client)
+func Get(c *fiber.Ctx) *gateway.Client {
+	client, ok := c.Locals(localsKeyClient).(*gateway.Client)
 	if !ok {
 		return nil
 	}
