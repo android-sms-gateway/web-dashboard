@@ -137,6 +137,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -172,6 +178,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -241,6 +253,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             },
@@ -285,6 +303,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -326,6 +362,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -349,6 +391,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -393,6 +441,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -521,6 +575,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -559,6 +619,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -585,6 +651,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -632,6 +704,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -667,6 +745,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
                         "schema": {
                             "$ref": "#/definitions/fiberfx.ErrorResponse"
                         }
@@ -1078,6 +1162,7 @@ const docTemplate = `{
         "smsgateway.MessageState": {
             "type": "object",
             "required": [
+                "createdAt",
                 "deviceId",
                 "id",
                 "recipients",

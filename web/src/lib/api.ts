@@ -92,22 +92,26 @@ export function toServer(settings: DeviceSettings): Record<string, Record<string
 	return mapSettings(settings as Record<string, unknown>, CAMEL_TO_SNAKE);
 }
 
-const MAX_ERROR_DETAIL_LENGTH = 300;
-
-export function formatApiError(status: number, detail: string): string {
-	const normalized = detail.replace(/\s+/g, ' ').trim();
-	if (!normalized) return `API error ${status}`;
-	const short =
-		normalized.length > MAX_ERROR_DETAIL_LENGTH
-			? `${normalized.slice(0, MAX_ERROR_DETAIL_LENGTH)}...`
-			: normalized;
-	return `API error ${status}: ${short}`;
-}
-
 export function errorMessage(error: unknown): string {
 	if (error instanceof Error && error.message) return error.message;
 	if (typeof error === 'string' && error) return error;
 	return 'Unknown error';
+}
+
+function extractMessage(body: string): string {
+	try {
+		const parsed: unknown = JSON.parse(body);
+		if (parsed !== null && typeof parsed === 'object' && 'message' in parsed) {
+			const { message } = parsed as { message: unknown };
+			if (typeof message === 'string' && message.trim() !== '') {
+				return message;
+			}
+		}
+	} catch {
+		return '';
+	}
+
+	return '';
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -125,7 +129,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		try {
 			detail = await res.text();
 		} catch {}
-		throw new Error(formatApiError(res.status, detail));
+		throw new Error(extractMessage(detail) || detail || `API error: ${res.status}`);
 	}
 
 	if (res.status === 204) {

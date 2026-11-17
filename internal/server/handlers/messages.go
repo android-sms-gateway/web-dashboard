@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/android-sms-gateway/client-go/smsgateway"
@@ -110,6 +111,7 @@ type listMessagesResponse struct {
 //	@Param			to			query		string	false	"End date (RFC3339)"
 //	@Success		200			{object}	listMessagesResponse
 //	@Failure		401			{object}	fiberfx.ErrorResponse
+//	@Failure		502			{object}	fiberfx.ErrorResponse
 //	@Router			/messages [get]
 func (h *MessagesHandler) list(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -127,7 +129,7 @@ func (h *MessagesHandler) list(c *fiber.Ctx) error {
 	messages, total, err := sdkClient.ListMessages(c.Context(), query.toOptions())
 	if err != nil {
 		h.logger.Warn("failed to list messages", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to list messages")
+		return fmt.Errorf("failed to list messages: %w", err)
 	}
 
 	items := make([]messageListItem, len(messages))
@@ -192,6 +194,9 @@ type sendMessageRequest struct {
 //	@Success		200		{object}	smsgateway.MessageState
 //	@Failure		400		{object}	fiberfx.ErrorResponse
 //	@Failure		401		{object}	fiberfx.ErrorResponse
+//	@Failure		409		{object}	fiberfx.ErrorResponse
+//	@Failure		502		{object}	fiberfx.ErrorResponse
+//	@Failure		503		{object}	fiberfx.ErrorResponse
 //	@Router			/messages [post]
 func (h *MessagesHandler) send(c *fiber.Ctx, req *sendMessageRequest) error {
 	sdkClient := client.Get(c)
@@ -241,7 +246,7 @@ func (h *MessagesHandler) send(c *fiber.Ctx, req *sendMessageRequest) error {
 	state, err := sdkClient.Send(c.Context(), msg)
 	if err != nil {
 		h.logger.Warn("failed to send message", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to send message")
+		return fmt.Errorf("failed to send message: %w", err)
 	}
 
 	return c.JSON(state)
@@ -257,6 +262,7 @@ func (h *MessagesHandler) send(c *fiber.Ctx, req *sendMessageRequest) error {
 //	@Success		200	{object}	smsgateway.MessageState
 //	@Failure		401	{object}	fiberfx.ErrorResponse
 //	@Failure		404	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/messages/{id} [get]
 func (h *MessagesHandler) get(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -273,7 +279,7 @@ func (h *MessagesHandler) get(c *fiber.Ctx) error {
 	state, err := sdkClient.GetState(c.Context(), id)
 	if err != nil {
 		h.logger.Warn("failed to get message", zap.String("id", id), zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to get message")
+		return fmt.Errorf("failed to get message: %w", err)
 	}
 
 	return c.JSON(state)

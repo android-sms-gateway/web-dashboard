@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/android-sms-gateway/client-go/smsgateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/client"
@@ -56,6 +58,7 @@ type webhookListItem struct {
 //	@Produce		json
 //	@Success		200	{array}		webhookListItem
 //	@Failure		401	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/webhooks [get]
 func (h *WebhooksHandler) list(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -67,7 +70,7 @@ func (h *WebhooksHandler) list(c *fiber.Ctx) error {
 	webhooks, err := sdkClient.ListWebhooks(c.Context())
 	if err != nil {
 		h.logger.Warn("failed to list webhooks", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to list webhooks")
+		return fmt.Errorf("failed to list webhooks: %w", err)
 	}
 
 	items := make([]webhookListItem, len(webhooks))
@@ -100,6 +103,7 @@ type createWebhookRequest struct {
 //	@Success		200		{object}	smsgateway.Webhook
 //	@Failure		400		{object}	fiberfx.ErrorResponse
 //	@Failure		401		{object}	fiberfx.ErrorResponse
+//	@Failure		502		{object}	fiberfx.ErrorResponse
 //	@Router			/webhooks [post]
 func (h *WebhooksHandler) create(c *fiber.Ctx, req *createWebhookRequest) error {
 	sdkClient := client.Get(c)
@@ -116,7 +120,7 @@ func (h *WebhooksHandler) create(c *fiber.Ctx, req *createWebhookRequest) error 
 	})
 	if err != nil {
 		h.logger.Warn("failed to create webhook", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to create webhook")
+		return fmt.Errorf("failed to create webhook: %w", err)
 	}
 
 	return c.JSON(result)
@@ -132,6 +136,7 @@ func (h *WebhooksHandler) create(c *fiber.Ctx, req *createWebhookRequest) error 
 //	@Success		204
 //	@Failure		401	{object}	fiberfx.ErrorResponse
 //	@Failure		404	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/webhooks/{id} [delete]
 func (h *WebhooksHandler) delete(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -147,7 +152,7 @@ func (h *WebhooksHandler) delete(c *fiber.Ctx) error {
 
 	if err := sdkClient.DeleteWebhook(c.Context(), id); err != nil {
 		h.logger.Warn("failed to delete webhook", zap.String("id", id), zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to delete webhook")
+		return fmt.Errorf("failed to delete webhook: %w", err)
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)

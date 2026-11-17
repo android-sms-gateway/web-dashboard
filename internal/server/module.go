@@ -29,7 +29,7 @@ func Module() fx.Option {
 
 		fx.Provide(func(log *zap.Logger) fiberfx.Options {
 			opts := fiberfx.Options{}
-			opts.WithErrorHandler(fiberfx.NewJSONErrorHandler(log))
+			opts.WithErrorHandler(fiberfx.NewCustomJSONErrorHandler(log, handlers.ErrorFormatter))
 			opts.WithMetrics()
 			return opts
 		}),
@@ -47,7 +47,7 @@ func Module() fx.Option {
 
 		fx.Invoke(
 			fx.Annotate(
-				func(handlers []handler.Handler, callbackHandler *handlers.CallbackHandler, healthHandler *health.Handler, openapiHandler *openapi.Handler, app *fiber.App) {
+				func(routeHandlers []handler.Handler, callbackHandler *handlers.CallbackHandler, healthHandler *health.Handler, openapiHandler *openapi.Handler, app *fiber.App) {
 					// Health endpoint
 					healthHandler.Register(app)
 					callbackHandler.Register(app)
@@ -56,11 +56,12 @@ func Module() fx.Option {
 					openapiHandler.Register(v1.Group("/docs"))
 
 					v1.Use(
+						handlers.ErrorMapping,
 						validation.Middleware,
 						session.New(nil),
 					)
 
-					for _, h := range handlers {
+					for _, h := range routeHandlers {
 						h.Register(v1)
 					}
 

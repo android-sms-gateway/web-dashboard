@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { errorMessage, formatApiError, fromServer, getSettings, toServer, updateSettings } from './api.ts';
+import { errorMessage, fromServer, getSettings, sendMessage, toServer, updateSettings } from './api.ts';
 
 type FetchStub = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -153,36 +153,60 @@ describe('settings API mapping integration', () => {
 	});
 });
 
-describe('error detail surfacing', () => {
-	afterEach(() => {
-		delete (globalThis as { fetch?: unknown }).fetch;
-	});
-
-	it('formatApiError combines status and detail on one line', () => {
-		assert.equal(formatApiError(400, '{"message":"failed on the isdefault tag"}\n'), 'API error 400: {"message":"failed on the isdefault tag"}');
-		assert.equal(formatApiError(500, ''), 'API error 500');
-	});
-
-	it('formatApiError truncates long bodies', () => {
-		const message = formatApiError(502, 'x'.repeat(1000));
-
-		assert.ok(message.length < 400);
-		assert.ok(message.startsWith('API error 502:'));
-	});
-
-	it('getSettings rejects with status and body detail included', async () => {
-		stubFetch(async () => new Response('{"message":"boom detail"}', { status: 401 }));
-
-		await assert.rejects(getSettings(), (err: Error) => {
-			assert.match(err.message, /401/);
-			assert.match(err.message, /boom detail/);
-			return true;
-		});
-	});
-
-	it('errorMessage falls back for unknown throwables', () => {
+describe('errorMessage fallback', () => {
+	it('falls back for unknown throwables', () => {
 		assert.equal(errorMessage(new Error('detail')), 'detail');
 		assert.equal(errorMessage('string error'), 'string error');
 		assert.equal(errorMessage(undefined), 'Unknown error');
+	});
+});
+
+const request = { phoneNumbers: ['+15555550100'], text: 'hello' };
+
+function stubErrorFetch(body: string, status: number) {
+	const fetchMock = vi.fn().mockResolvedValue(
+		new Response(body, {
+			status,
+			headers: { 'Content-Type': 'application/json' },
+		})
+	);
+	vi.stubGlobal('fetch', fetchMock);
+	return fetchMock;
+}
+
+afterEach(() => {
+	vi.unstubAllGlobals();
+});
+
+describe('request error messages', () => {
+	it('surfaces the server message instead of the raw JSON body', async () => {
+		const fetchMock = stubErrorFetch('{"message":"invalid phone number","code":400}', 400);
+
+		await expect(sendMessage(request)).rejects.toThrow(/^invalid phone number$/);
+		expect(fetchMock).toHaveBeenCalledOnce();
+	});
+
+	it('surfaces a queue-limit reason for 503 responses', async () => {
+		stubErrorFetch('{"message":"queue limits exceeded","code":503}', 503);
+
+		await expect(sendMessage(request)).rejects.toThrow(/^queue limits exceeded$/);
+	});
+
+	it('falls back to the raw body when it is not a JSON error payload', async () => {
+		stubErrorFetch('upstream exploded', 502);
+
+		await expect(sendMessage(request)).rejects.toThrow('upstream exploded');
+	});
+
+	it('ignores a non-string message field', async () => {
+		stubErrorFetch('{"message":42,"code":500}', 500);
+
+		await expect(sendMessage(request)).rejects.toThrow('{"message":42,"code":500}');
+	});
+
+	it('falls back to a status line when the body is empty', async () => {
+		stubErrorFetch('', 502);
+
+		await expect(sendMessage(request)).rejects.toThrow('API error: 502');
 	});
 });

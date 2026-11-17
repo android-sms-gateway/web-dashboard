@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/android-sms-gateway/client-go/smsgateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/client"
@@ -56,6 +58,7 @@ type createTokenRequest struct {
 //	@Success		200		{object}	smsgateway.TokenResponse
 //	@Failure		400		{object}	fiberfx.ErrorResponse
 //	@Failure		401		{object}	fiberfx.ErrorResponse
+//	@Failure		502		{object}	fiberfx.ErrorResponse
 //	@Router			/tokens [post]
 func (h *TokensHandler) create(c *fiber.Ctx, req *createTokenRequest) error {
 	sdkClient := client.Get(c)
@@ -78,7 +81,7 @@ func (h *TokensHandler) create(c *fiber.Ctx, req *createTokenRequest) error {
 	result, err := sdkClient.GenerateToken(c.Context(), tokenReq)
 	if err != nil {
 		h.logger.Warn("failed to create token", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to create token")
+		return fmt.Errorf("failed to create token: %w", err)
 	}
 
 	return c.JSON(result)
@@ -94,6 +97,7 @@ func (h *TokensHandler) create(c *fiber.Ctx, req *createTokenRequest) error {
 //	@Success		204
 //	@Failure		401	{object}	fiberfx.ErrorResponse
 //	@Failure		404	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/tokens/{jti} [delete]
 func (h *TokensHandler) revoke(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -109,7 +113,7 @@ func (h *TokensHandler) revoke(c *fiber.Ctx) error {
 
 	if err := sdkClient.RevokeToken(c.Context(), jti); err != nil {
 		h.logger.Warn("failed to revoke token", zap.String("jti", jti), zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to revoke token")
+		return fmt.Errorf("failed to revoke token: %w", err)
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
