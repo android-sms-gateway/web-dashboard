@@ -38,6 +38,11 @@ export interface LoginResponse {
 	login: string;
 }
 
+export enum DeviceState {
+	Active = 'Active',
+	Disabled = 'Disabled',
+}
+
 export interface Device {
 	id: string;
 	name: string;
@@ -48,6 +53,8 @@ export interface Device {
 	publicKey?: string | null;
 	/** Key rotation version; present only with publicKey. */
 	keyVersion?: number | null;
+	/** Device state; Disabled devices are excluded from message selection. */
+	state: DeviceState;
 }
 
 export interface MessageListItem {

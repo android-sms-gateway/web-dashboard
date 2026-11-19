@@ -177,6 +177,60 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Changes device state, controlling its availability for message selection.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "Update device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New device state",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.updateDeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/fiberfx.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/messages": {
@@ -818,6 +872,9 @@ const docTemplate = `{
                 },
                 "publicKey": {
                     "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/smsgateway.DeviceState"
                 }
             }
         },
@@ -944,6 +1001,25 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.updateDeviceRequest": {
+            "type": "object",
+            "required": [
+                "state"
+            ],
+            "properties": {
+                "state": {
+                    "enum": [
+                        "Active",
+                        "Disabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/smsgateway.DeviceState"
+                        }
+                    ]
+                }
+            }
+        },
         "handlers.webhookListItem": {
             "type": "object",
             "properties": {
@@ -1046,6 +1122,17 @@ const docTemplate = `{
                 }
             }
         },
+        "smsgateway.DeviceState": {
+            "type": "string",
+            "enum": [
+                "Active",
+                "Disabled"
+            ],
+            "x-enum-varnames": [
+                "DeviceStateActive",
+                "DeviceStateDisabled"
+            ]
+        },
         "smsgateway.HashedMessage": {
             "type": "object",
             "required": [
@@ -1078,6 +1165,7 @@ const docTemplate = `{
         "smsgateway.MessageState": {
             "type": "object",
             "required": [
+                "createdAt",
                 "deviceId",
                 "id",
                 "recipients",
