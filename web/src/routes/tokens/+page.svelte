@@ -8,6 +8,7 @@
 	import Dialog from '$lib/components/ui/dialog/dialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import type { CreateTokenResponse } from '$lib/types';
+	import { parseTTL } from '$lib/ttl';
 
 	type View = 'create' | 'result';
 	let view = $state<View>('create');
@@ -61,15 +62,10 @@
 	async function handleGenerate() {
 		error = '';
 		if (selectedScopes.length === 0) { error = 'Select at least one scope'; return; }
-		const ttlValue = ttlInput.trim();
-		let ttl: number | undefined;
-		if (ttlValue) {
-			const parsed = parseInt(ttlValue, 10);
-			if (Number.isNaN(parsed) || parsed <= 0) {
-				error = 'TTL must be a positive whole number';
-				return;
-			}
-			ttl = parsed;
+		const ttl = parseTTL(ttlInput);
+		if (ttl === null) {
+			error = 'TTL must be a positive whole number';
+			return;
 		}
 		saving = true;
 		try {
@@ -78,8 +74,10 @@
 				ttl,
 			});
 			view = 'result';
-		} catch {
-			error = 'Failed to generate token';
+		} catch (err) {
+			error = err instanceof Error && err.message
+				? err.message
+				: 'Failed to generate token';
 		} finally {
 			saving = false;
 		}
