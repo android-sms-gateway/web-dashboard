@@ -5,6 +5,7 @@
 	import { getMessage } from "$lib/api";
 	import { loadDevices } from "$lib/device-cache.svelte";
 	import { dc } from "$lib/device-cache.svelte";
+	import { sortedStates } from "$lib/message-timeline";
 	import { stateBadgeVariant } from "$lib/utils";
 	import { Button } from "$lib/components/ui/button/index.js";
 	import { Badge } from "$lib/components/ui/badge/index.js";
@@ -201,9 +202,9 @@
 					</Tr>
 				</Thead>
 				<Tbody>
-					{#each Object.entries(message.states) as [event, time]}
+					{#each sortedStates(message.states) as { state, time }}
 						<Tr>
-							<Td class="font-medium">{event}</Td>
+							<Td class="font-medium">{state}</Td>
 							<Td class="text-muted-foreground">{time}</Td>
 						</Tr>
 					{/each}

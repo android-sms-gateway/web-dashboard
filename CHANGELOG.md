@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- Fixed the message detail timeline showing delivery states in an arbitrary order — states are now sorted chronologically by timestamp
+
+## [0.6.4] - 2026-11-24
+
 ### Improvements
 
 - **Docker healthcheck** — the published image now probes `/health/live` every 15 seconds after a 20-second start period, so Docker and orchestrators can detect an unhealthy container
