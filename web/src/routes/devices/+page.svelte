@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { listDevices, deleteDevice } from '$lib/api';
+	import { SvelteSet } from 'svelte/reactivity';
+	import { listDevices, updateDevice, deleteDevice } from '$lib/api';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import { Table, Thead, Tbody, Tr, Th, Td } from '$lib/components/ui/table/index.js';
 	import Dialog from '$lib/components/ui/dialog/dialog.svelte';
 	import { toast } from 'svelte-sonner';
-	import type { Device } from '$lib/types';
+	import { DeviceState, type Device } from '$lib/types';
 
 	let devices = $state<Device[]>([]);
 	let loading = $state(true);
@@ -34,6 +35,21 @@
 
 	let deleting = $state<string | null>(null);
 	let confirmDelete = $state<string | null>(null);
+	const updating = new SvelteSet<string>();
+
+	async function handleToggle(device: Device) {
+		if (updating.has(device.id)) return;
+		const state = device.state === DeviceState.Active ? DeviceState.Disabled : DeviceState.Active;
+		updating.add(device.id);
+		try {
+			await updateDevice(device.id, state);
+			devices = devices.map((d) => (d.id === device.id ? { ...d, state } : d));
+		} catch {
+			toast.error(`Failed to ${state === DeviceState.Disabled ? 'disable' : 'enable'} device`);
+		} finally {
+			updating.delete(device.id);
+		}
+	}
 
 	async function handleDelete() {
 		if (!confirmDelete) return;
@@ -92,6 +108,7 @@
 					<Th>Name</Th>
 					<Th>ID</Th>
 					<Th>Status</Th>
+					<Th>State</Th>
 					<Th>Encryption</Th>
 					<Th>Last Seen</Th>
 					<Th></Th>
@@ -110,6 +127,13 @@
 							{/if}
 						</Td>
 					<Td>
+						{#if d.state === DeviceState.Active}
+							<Badge variant="default">Active</Badge>
+						{:else}
+							<Badge variant="secondary">Disabled</Badge>
+						{/if}
+					</Td>
+					<Td>
 						{#if encryptionType(d) === 'e2e'}
 							<span class="inline-flex items-center gap-1.5" title="End-to-end encryption enabled">
 								<span class="inline-block h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
@@ -123,16 +147,26 @@
 						{/if}
 					</Td>
 					<Td class="whitespace-nowrap text-muted-foreground">{timeAgo(d.lastSeen)}</Td>
-						<Td>
+					<Td>
+						<div class="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => handleToggle(d)}
+								disabled={updating.has(d.id) || deleting === d.id}
+							>
+								{updating.has(d.id) ? '...' : d.state === DeviceState.Active ? 'Disable' : 'Enable'}
+							</Button>
 							<Button
 								variant="destructive"
 								size="sm"
 								onclick={() => (confirmDelete = d.id)}
-								disabled={deleting === d.id}
+								disabled={deleting === d.id || updating.has(d.id)}
 							>
 								{deleting === d.id ? '...' : 'Delete'}
 							</Button>
-						</Td>
+						</div>
+					</Td>
 					</Tr>
 				{/each}
 			</Tbody>
