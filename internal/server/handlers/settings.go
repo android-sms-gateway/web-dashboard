@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/android-sms-gateway/client-go/smsgateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/client"
@@ -48,6 +50,7 @@ func (h *SettingsHandler) Register(r fiber.Router) {
 //	@Produce		json
 //	@Success		200	{object}	smsgateway.DeviceSettings
 //	@Failure		401	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/settings [get]
 func (h *SettingsHandler) get(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -59,7 +62,7 @@ func (h *SettingsHandler) get(c *fiber.Ctx) error {
 	settings, err := sdkClient.GetSettings(c.Context())
 	if err != nil {
 		h.logger.Warn("failed to get settings", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to get settings")
+		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
 	return c.JSON(settings)
@@ -76,6 +79,7 @@ func (h *SettingsHandler) get(c *fiber.Ctx) error {
 //	@Success		200		{object}	smsgateway.DeviceSettings
 //	@Failure		400		{object}	fiberfx.ErrorResponse
 //	@Failure		401		{object}	fiberfx.ErrorResponse
+//	@Failure		502		{object}	fiberfx.ErrorResponse
 //	@Router			/settings [patch]
 func (h *SettingsHandler) update(c *fiber.Ctx, req *smsgateway.DeviceSettings) error {
 	sdkClient := client.Get(c)
@@ -87,7 +91,7 @@ func (h *SettingsHandler) update(c *fiber.Ctx, req *smsgateway.DeviceSettings) e
 	settings, err := sdkClient.UpdateSettings(c.Context(), *req)
 	if err != nil {
 		h.logger.Warn("failed to update settings", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to update settings")
+		return fmt.Errorf("failed to update settings: %w", err)
 	}
 
 	return c.JSON(settings)

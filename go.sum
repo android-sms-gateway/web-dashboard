@@ -1,7 +1,7 @@
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
-github.com/android-sms-gateway/client-go v1.16.3 h1:C7FP9xD7GwJvCDxd53ffCKV6RSw08DGbTFocYEI6IaA=
-github.com/android-sms-gateway/client-go v1.16.3/go.mod h1:DQsReciU1xcaVW3T5Z2bqslNdsAwCFCtghawmA6g6L4=
+github.com/android-sms-gateway/client-go v1.17.1-0.20261117030426-406a25c18167 h1:x95YikZ87JS7MeDIReIYvss5DH92adiqvgcVw2zH6fs=
+github.com/android-sms-gateway/client-go v1.17.1-0.20261117030426-406a25c18167/go.mod h1:DQsReciU1xcaVW3T5Z2bqslNdsAwCFCtghawmA6g6L4=
 github.com/ansrivas/fiberprometheus/v2 v2.18.0 h1:cxjAl2urLYbUu0/2KusrA8Vxkk/8v2WRzmlrhvsR3GE=
 github.com/ansrivas/fiberprometheus/v2 v2.18.0/go.mod h1:3YCvolUcblrr6IPZqPmHvWw5NJHHNrKS58XIrYXMinY=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

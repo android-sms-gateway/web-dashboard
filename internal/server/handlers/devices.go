@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/android-sms-gateway/web-dashboard/internal/dashboard"
@@ -59,6 +60,7 @@ type deviceListItem struct {
 //	@Produce		json
 //	@Success		200	{array}		deviceListItem
 //	@Failure		401	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/devices [get]
 func (h *DevicesHandler) list(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -70,7 +72,7 @@ func (h *DevicesHandler) list(c *fiber.Ctx) error {
 	devices, err := sdkClient.ListDevices(c.Context())
 	if err != nil {
 		h.logger.Warn("failed to list devices", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to list devices")
+		return fmt.Errorf("failed to list devices: %w", err)
 	}
 
 	items := make([]deviceListItem, len(devices))
@@ -99,6 +101,7 @@ func (h *DevicesHandler) list(c *fiber.Ctx) error {
 //	@Success		204
 //	@Failure		401	{object}	fiberfx.ErrorResponse
 //	@Failure		404	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
 //	@Router			/devices/{id} [delete]
 func (h *DevicesHandler) delete(c *fiber.Ctx) error {
 	sdkClient := client.Get(c)
@@ -114,7 +117,7 @@ func (h *DevicesHandler) delete(c *fiber.Ctx) error {
 
 	if err := sdkClient.DeleteDevice(c.Context(), id); err != nil {
 		h.logger.Warn("failed to delete device", zap.String("id", id), zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to delete device")
+		return fmt.Errorf("failed to delete device: %w", err)
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
