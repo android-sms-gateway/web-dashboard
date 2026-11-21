@@ -3,11 +3,13 @@ package handlers
 import (
 	"time"
 
+	"github.com/android-sms-gateway/client-go/smsgateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/dashboard"
 	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/client"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/session"
 	"github.com/go-core-fx/fiberfx/handler"
+	"github.com/go-core-fx/fiberfx/validation"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -38,17 +40,19 @@ func (h *DevicesHandler) Register(r fiber.Router) {
 	g := r.Group("/devices", session.AuthRequired(), client.New(h.gatewaySvc))
 
 	g.Get("", h.list)
+	g.Patch(":id", validation.DecorateWithBodyEx(h.Validator, h.update))
 	g.Delete(":id", h.delete)
 }
 
 type deviceListItem struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	LastSeen   time.Time `json:"lastSeen"`
-	IsOnline   bool      `json:"isOnline"`
-	CreatedAt  time.Time `json:"createdAt"`
-	PublicKey  *string   `json:"publicKey,omitempty"`
-	KeyVersion *int      `json:"keyVersion,omitempty"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	LastSeen   time.Time              `json:"lastSeen"`
+	IsOnline   bool                   `json:"isOnline"`
+	CreatedAt  time.Time              `json:"createdAt"`
+	PublicKey  *string                `json:"publicKey,omitempty"`
+	KeyVersion *int                   `json:"keyVersion,omitempty"`
+	State      smsgateway.DeviceState `json:"state"`
 }
 
 // ListDevices returns registered devices.
@@ -83,10 +87,51 @@ func (h *DevicesHandler) list(c *fiber.Ctx) error {
 			LastSeen:   d.LastSeen,
 			IsOnline:   d.DeletedAt == nil && time.Since(d.LastSeen) < dashboard.DeviceOnlineIn,
 			CreatedAt:  d.CreatedAt,
+			State:      d.State,
 		}
 	}
 
 	return c.JSON(items)
+}
+
+type updateDeviceRequest struct {
+	State smsgateway.DeviceState `json:"state" validate:"required,oneof=Active Disabled"`
+}
+
+// UpdateDevice changes the state of a device.
+//
+//	@Summary		Update device
+//	@Description	Changes device state, controlling its availability for message selection.
+//	@Tags			devices
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string				true	"Device ID"
+//	@Param			body	body	updateDeviceRequest	true	"New device state"
+//	@Success		204
+//	@Failure		400	{object}	fiberfx.ErrorResponse
+//	@Failure		401	{object}	fiberfx.ErrorResponse
+//	@Failure		502	{object}	fiberfx.ErrorResponse
+//	@Router			/devices/{id} [patch]
+func (h *DevicesHandler) update(c *fiber.Ctx, req *updateDeviceRequest) error {
+	sdkClient := client.Get(c)
+	if sdkClient == nil {
+		h.logger.Warn("failed to get client")
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to get client")
+	}
+
+	id := c.Params("id")
+	if id == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "device ID is required")
+	}
+
+	if err := sdkClient.UpdateDevice(c.Context(), id, smsgateway.DeviceUpdateRequest{
+		State: req.State,
+	}); err != nil {
+		h.logger.Warn("failed to update device", zap.String("id", id), zap.Error(err))
+		return fiber.NewError(fiber.StatusBadGateway, "failed to update device")
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 // DeleteDevice removes a device by ID.
