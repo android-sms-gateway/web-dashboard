@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { listDevices, updateDevice, deleteDevice } from '$lib/api';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -34,18 +35,19 @@
 
 	let deleting = $state<string | null>(null);
 	let confirmDelete = $state<string | null>(null);
-	let updating = $state<string | null>(null);
+	const updating = new SvelteSet<string>();
 
 	async function handleToggle(device: Device) {
+		if (updating.has(device.id)) return;
 		const state = device.state === DeviceState.Active ? DeviceState.Disabled : DeviceState.Active;
-		updating = device.id;
+		updating.add(device.id);
 		try {
 			await updateDevice(device.id, state);
 			devices = devices.map((d) => (d.id === device.id ? { ...d, state } : d));
 		} catch {
 			toast.error(`Failed to ${state === DeviceState.Disabled ? 'disable' : 'enable'} device`);
 		} finally {
-			updating = null;
+			updating.delete(device.id);
 		}
 	}
 
@@ -151,15 +153,15 @@
 								variant="outline"
 								size="sm"
 								onclick={() => handleToggle(d)}
-								disabled={updating === d.id || deleting === d.id}
+								disabled={updating.has(d.id) || deleting === d.id}
 							>
-								{updating === d.id ? '...' : d.state === DeviceState.Active ? 'Disable' : 'Enable'}
+								{updating.has(d.id) ? '...' : d.state === DeviceState.Active ? 'Disable' : 'Enable'}
 							</Button>
 							<Button
 								variant="destructive"
 								size="sm"
 								onclick={() => (confirmDelete = d.id)}
-								disabled={deleting === d.id || updating === d.id}
+								disabled={deleting === d.id || updating.has(d.id)}
 							>
 								{deleting === d.id ? '...' : 'Delete'}
 							</Button>
