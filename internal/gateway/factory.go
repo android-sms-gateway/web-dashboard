@@ -14,12 +14,14 @@ func NewFactory(baseURL string) *Factory {
 	return &Factory{baseURL: baseURL}
 }
 
-func (c *Factory) NewClient(login, password string) *smsgateway.Client {
-	return smsgateway.NewClient(smsgateway.Config{
-		Client:   http.DefaultClient,
-		BaseURL:  c.baseURL,
-		User:     login,
-		Password: password,
-		Token:    "",
-	})
+func (c *Factory) NewClient(login, password string) *Client {
+	return &Client{
+		Client: smsgateway.NewClient(smsgateway.Config{
+			Client:   http.DefaultClient,
+			BaseURL:  c.baseURL,
+			User:     login,
+			Password: password,
+			Token:    "",
+		}),
+	}
 }

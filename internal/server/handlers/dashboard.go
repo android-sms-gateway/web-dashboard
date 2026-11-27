@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/android-sms-gateway/web-dashboard/internal/dashboard"
 	"github.com/android-sms-gateway/web-dashboard/internal/server/middlewares/session"
 	"github.com/go-core-fx/fiberfx/handler"
@@ -59,7 +61,7 @@ func (h *DashboardHandler) stats(c *fiber.Ctx) error {
 	stats, err := h.dashboardSvc.Stats(c.Context(), login, password)
 	if err != nil {
 		h.logger.Warn("failed to get stats", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to get stats")
+		return fmt.Errorf("failed to get stats: %w", err)
 	}
 
 	return c.JSON(stats)
@@ -102,7 +104,7 @@ func (h *DashboardHandler) trends(c *fiber.Ctx) error {
 	trends, err := h.dashboardSvc.Trends(c.Context(), login, password, days)
 	if err != nil {
 		h.logger.Warn("failed to get trends", zap.Error(err))
-		return fiber.NewError(fiber.StatusBadGateway, "failed to get trends")
+		return fmt.Errorf("failed to get trends: %w", err)
 	}
 
 	return c.JSON(trends)

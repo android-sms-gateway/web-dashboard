@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/android-sms-gateway/client-go/smsgateway"
+	"github.com/android-sms-gateway/web-dashboard/internal/gateway"
 )
 
 const dateLayout = "2006-01-02"
@@ -81,7 +82,7 @@ func trendsBuckets(now time.Time, days int) []trendsBucket {
 
 func countMessagesRange(
 	ctx context.Context,
-	client *smsgateway.Client,
+	client *gateway.Client,
 	from, to *time.Time,
 ) (int, int, int, error) {
 	var wg sync.WaitGroup
@@ -132,7 +133,7 @@ func countMessagesRange(
 
 func sweepDays(
 	ctx context.Context,
-	client *smsgateway.Client,
+	client *gateway.Client,
 	buckets []trendsBucket,
 ) ([]DayVolume, []DayActivity, error) {
 	volumes := make([]DayVolume, len(buckets))
@@ -204,7 +205,7 @@ type daySweepStats struct {
 // through messages.
 func sweepDay(
 	ctx context.Context,
-	client *smsgateway.Client,
+	client *gateway.Client,
 	from, to time.Time,
 ) (daySweepStats, error) {
 	total, pending, failed := 0, 0, 0
