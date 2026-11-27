@@ -4,6 +4,7 @@ import type {
 	CreateWebhookRequest,
 	Device,
 	DeviceSettings,
+	DeviceState,
 	ListMessagesParams,
 	ListMessagesResponse,
 	LoginRequest,
@@ -182,6 +183,13 @@ export function sendMessage(data: SendMessageRequest) {
 
 export function listDevices() {
 	return request<Device[]>('/devices');
+}
+
+export function updateDevice(id: string, state: DeviceState) {
+	return request<void>(`/devices/${encodeURIComponent(id)}`, {
+		method: 'PATCH',
+		body: JSON.stringify({ state }),
+	});
 }
 
 export function deleteDevice(id: string) {
